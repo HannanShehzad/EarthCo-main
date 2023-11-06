@@ -10,6 +10,7 @@ import ServiceIndex from '../components/ServiceRequest/ServiceIndex'
 import IrrigationIndex from '../components/Irrigation/IrrigationIndex'
 import CustomersTable from '../components/Customers/CustomersTable'
 import AddCutomer from '../components/Customers/AddCutomer'
+import UpdateCustomer from '../components/Customers/UpdateCustomer'
 import Irrigationlist from '../components/Irrigation/Irrigationlist'
 import IrrigationForm from '../components/Irrigation/IrrigationForm'
 import Audit from '../components/Reports/Audit'
@@ -56,6 +57,7 @@ const DashboardPage = () => {
                         </CustomerData>
                     } >
                         <Route path='' element={<CustomersTable />} />
+                        <Route path='Update-Customer' element={<UpdateCustomer />} />
                         <Route path='Add-Customer' element={<AddCutomer />} />
                     </Route>
                     <Route path='Staff/*' element={<StaffIndex />} >
@@ -70,7 +72,7 @@ const DashboardPage = () => {
                     </Route>
                     <Route path='Service-Requests' element={<ServiceIndex />} >
                         <Route path='' element={<SRlist />} />
-                        <Route path='Add' element={<AddSRform />} />
+                        <Route path='Add-SRform' element={<AddSRform />} />
                         <Route path={SRroute} element={<ServiceRequest />} />
                     </Route>
                     <Route path='Irrigation' element={<IrrigationIndex />} >

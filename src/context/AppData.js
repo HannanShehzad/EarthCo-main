@@ -7,22 +7,12 @@ const DataFun = ({ children }) => {
 
     const [singleObj, setSingleObj] = useState();
     const [singleSR, setSingleSR] = useState();
-
-    const [users, setUsers] = useState();
-
-    const fetchUsers = async () => {
-        const response = await axios.get('http://localhost:8001/Users');
-        setUsers(response.data)
-    }
-    const fetchCustomers = async () => {
-        const response = await axios.get('http://localhost:8001/Customers');
-        setCustomers(response.data)
-    }
-
-    useEffect(() => {
-        fetchUsers();
-        fetchCustomers();
-    }, [])
+    const [users, setUsers] = [{
+        fullName: 'Admin',
+        userName: 'Admin',
+        email: 'admin@gmail.com',
+        password: 'admin123'
+    }]
 
     const [estimates, setEstimates] = useState([
         {
@@ -93,7 +83,87 @@ const DataFun = ({ children }) => {
         }
     ]);
 
-    const [customers, setCustomers] = useState();
+    const [customers, setCustomers] = useState([{
+        contacts: [
+            {
+                "contactName": "Asad",
+                "email": "asad@cs.com",
+                "phone": "57664564",
+                "mobile": "43258025",
+                "id": 6236
+            }
+        ],
+        serviceLocations: [
+            {
+                "adress": {
+                    "adressLine": "Modal Town",
+                    "room": "74",
+                    "city": "Lahore",
+                    "state": "Punjab",
+                    "postalCode": "58006",
+                    "country": "Pakostan"
+                },
+                "name": "Modal Town",
+                "phone": "57664564",
+                "fax": "we4553fAs32"
+            }
+        ],
+        "customerName": "Asad Arif",
+        "companyName": "Eazisols",
+        "title": "Asad",
+        "description": "Lorem Desc asad",
+        "adress": {
+            "adressLine": "MT",
+            "room": "74",
+            "city": "Lahore",
+            "state": "Punjab",
+            "postalCode": "58006",
+            "country": "Pakistan"
+        },
+    },
+    {
+        "contacts": [
+            {
+                "contactName": "Rizwan",
+                "email": "rizwan@min.com",
+                "phone": "43534543",
+                "mobile": "32323",
+                "id": 7060
+            }
+        ],
+        "serviceLocations": [
+            {
+                "adress": {
+                    "adressLine": "DHA",
+                    "room": "98",
+                    "city": "Lahore",
+                    "state": "Punjab",
+                    "postalCode": "54660",
+                    "country": "Pakistan"
+                },
+                "name": "DHA",
+                "phone": "7578798",
+                "fax": "Ri09sscs56"
+            }
+        ],
+        "customerName": "Rizwan",
+        "companyName": "Eazisols",
+        "title": "Rizz",
+        "description": "Lorem desc Rizz",
+        "adress": {
+            "adressLine": "DHA",
+            "room": "97",
+            "city": "Lahore",
+            "state": "Punjab",
+            "postalCode": "54660",
+            "country": "Pakistan"
+        },
+        "userLogin": {
+            "email": "rizwan@min.com",
+            "password": "riz123"
+        },
+    }
+    ]);
 
     const [serviceRequests, setServiceRequest] = useState([
         {

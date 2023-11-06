@@ -53475,7 +53475,175 @@ html[dir="rtl"] [direction="rtl"][data-sidebar-style="compact"]:not([data-layout
     /* display: contents; */
     margin-top: 5px;
     width: 95%;
-    z-index: 9999;
+    z-index: 10;
     position: absolute;
     box-shadow: 0 5px 16px 3px rgba(0, 0, 0, 0.5);
 }
+
+.admin-header{
+    color: #d9d9d9 !important;
+}
+.customer-heading{
+    font-size: 1.3rem;
+}
+.customer-search-input{
+    width: 13rem;
+    height:2em ;
+    /* padding-bottom: 2em; */
+    margin-right: 12em !important;
+}
+.search-Lable{
+    /* padding-top: 3px; */
+    margin-left: 2.5em;
+    width: 6rem;
+
+}
+@media (max-width: 1000px) {
+    .search-Lable {
+      margin-left: -2em; /* Adjust margin-left to zero for small and medium screens */
+    }
+  }
+  
+  
+  
+.badgebox-size{
+    height: 24px !important;
+    width: 26px;
+}
+.search-container{
+    /* margin-top: -10px !important; */
+    padding-left: 0px !important;
+    padding-top: 0px !important;
+}
+.add-customer-btn{
+    padding-top: 20px;
+}
+.search-wrap{
+    margin-bottom: 2em;
+}
+.page-btn{
+    /* height: 2em !important; */
+     padding: 4px;
+     /* background-color: transparent;
+     color: black; */
+    /* padding-bottom: 2px !important; */
+    /* padding-top: 2px !important; */ 
+    
+}
+
+.table-header{
+    background-color:#F0F4F9 ;
+}
+
+.create-button {
+  margin-right: 0 !important; 
+  padding-right: 0 !important;
+}
+
+.delete-button {
+  background-color: #ff0000;
+  margin-left: 0 !important;  
+  padding-left: 0 !important;
+  min-width: 0px !important;
+
+}
+.tblsearch-input{
+    height: 4rem;
+
+}
+.SrCustomerList{
+    width: 28em !important;
+}
+
+.basic-form{
+    padding-left: 2em;
+    padding-right: 2em;
+}
+.schedule-btn{
+    border: #6e6e6e solid 1px;
+    color:#6e6e6e;
+   margin-top: 5px;
+}
+.schedule-btn:hover{
+    background-color: #6e6e6e;
+    color: white;
+}
+
+.button-container {
+    display: flex;
+    justify-content: space-between;
+  }
+
+  
+   .button-container > Button {
+    margin: 0 0px; /* Adjust the margin as needed */
+  }   
+  .custom-search-container {
+    display: flex;
+    justify-content: flex-start;
+    margin-bottom: -3em !important;
+    /* width: 3em !important; */
+
+  }
+  
+  .custom-button-container {
+    display: flex;
+    justify-content: flex-end;
+    /* margin-bottom: 2em; */
+  }
+  .css-4e7dzw-MuiTableCell-root{
+    padding: 7px !important;
+  }
+  .css-105zgzk-MuiButtonBase-root-MuiCheckbox-root{
+    padding: 3px !important;
+  }
+  .css-1t8l2tu-MuiInputBase-input-MuiOutlinedInput-input{
+    height: 1.05em !important;
+  }
+  .center-loader {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 40vh; /* This makes the loader take up the entire viewport height */
+    
+  }
+
+  .card-header{
+    padding: 0.8em !important;
+    padding-left: 1em !important;
+  }
+  .date-sort-form{
+    width: 15em ;
+    margin-left: 1em;
+    margin-bottom: 0px;
+}
+
+.radio-margin{
+    margin-top: 2.4em;
+    margin-left: -1.5em !important;
+}
+.radio-margin-div{
+    margin-left: 1em !important;
+}
+
+.allow-customer-login{
+    margin-left: -3px !important;
+}
+.estm-action-btn{
+    margin: 0em 0.3em;
+}
+.message-customer{
+    margin-top: 2.2em;
+}
+
+.radio-margin-top{
+    margin-top: 6px !important;
+}
+.custom-create-icon {
+cursor: pointer;
+  color: #7c9c3d; /* Set your custom color here */
+}
+.custom-delete-icon {
+    cursor: pointer;
+      /* color: #7c9c3d; Set your custom color here */
+    }

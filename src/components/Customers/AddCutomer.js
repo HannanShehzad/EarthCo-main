@@ -1,432 +1,503 @@
-import React, { useEffect, useState } from 'react'
-import AdressModal from '../Modals/AdressModal';
-import { NavLink, useNavigate } from 'react-router-dom';
-import axios from 'axios';
+import React, { useEffect, useState, useRef } from "react";
+import { NavLink, useNavigate } from "react-router-dom";
+import axios from "axios";
 
-const AddCutomer = () => {
+const AddCustomer = () => {
+  const navigate = useNavigate();
 
-    const navigate = useNavigate();
+  const [contacts, setContacts] = useState([]);
+  const [loginState, setLoginState] = useState("dontallow");
+  const [showLogin, setShowLogin] = useState(false);
+  const [primary, setPrimary] = useState(false);
 
-    const [customerAdress, setCustomerAdress] = useState({})
-    // const [SLadress, setSLadress] = useState({})
+  const [apiKeys, setapiKeys] = useState([]);
+  const [inputNames, setinputNames] = useState([]);
+  const [mainObj, setmainObj] = useState({});
 
-    const [contacts, setContacts] = useState([]);
-    const [contact, setContact] = useState({})
+  const [formData, setFormData] = useState({
+    CustomerData: {
+      CustomerName: "",
+    },
+    ContactData: [],
+  });
 
-    const [serviceLocations, setServiceLocations] = useState([]);
-    const [customerInfo, setCustomerInfo] = useState([]);
-    const [SRlocation, setSRlocation] = useState([]);
-    const [serviceLocArr, setServiceLocArr] = useState([]);
+  const inputReffname = useRef();
+  const inputReflname = useRef();
+  const inputRefemail = useRef();
+  const inputRefphone = useRef();
+  const inputRefCname = useRef();
+  const inputRefaddress = useRef();
+  const clearInput = () => {
+    // Step 3: Access the current property and set it to an empty string
+    inputReffname.current.value = "";
+    inputReflname.current.value = "";
+    inputRefemail.current.value = "";
+    inputRefphone.current.value = "";
+    inputRefCname.current.value = "";
+    inputRefaddress.current.value = "";
+  };
 
-    const [adress1, setAdress1] = useState('')
-    const [adress2, setAdress2] = useState('')
+  useEffect(() => {
+    const dataObject = {};
+    inputNames.forEach((name) => {
+      dataObject[name] = "";
+    });
 
-    const [showPop1, setShowPop1] = useState(true);
-    const [showPop2, setShowPop2] = useState(true);
+    setmainObj(dataObject);
+    // console.log("object is ,,,", mainObj);
+  }, []);
 
-    const [SLadress, setSLadress] = useState({});
-    const [loginState, setLoginState] = useState('dontallow');
-    const [showLogin, setShowLogin] = useState(false);
-    const [loginData, setLoginData] = useState({});
-
-    const handleCustomerInfo = (event) => {
-        const value = event.target.value;
-        setCustomerInfo({
-            ...customerInfo,
-            [event.target.name]: value
-        })
+  const fetchCustomers = async () => {
+    try {
+      const responses = await axios.get(
+        "https://earthcoapi.yehtohoga.com/api/Customer/GetCustomer?id=0"
+      );
+    } catch (error) {
+      // console.log("API Call Error:", error.response.data);
+      const keys = Object.keys(error.response.data.ContactData[0]);
+      setapiKeys(keys);
     }
+  };
 
-    // contacts
+  const extractInputNames = () => {
+    const inputElements = document.querySelectorAll("form input");
 
-    const handleContacts = (event) => {
-        const value = event.target.value;
-        setContact({
-            ...contact,
-            [event.target.name]: value
-        })
-    }
+    setinputNames(
+      Array.from(inputElements).map((input) => input.getAttribute("name"))
+    );
+    console.log("Input array is", inputNames);
+  };
+  useEffect(() => {
+    fetchCustomers();
 
-    const addContact = (e) => {
-        e.preventDefault();
-        setContacts([
-            ...contacts,
-            { ...contact, id: Math.round(Math.random() * 9999) }
-        ])
+    extractInputNames();
+  }, []);
 
-        for (let n = 1; n <= 4; n++) {
-            document.getElementById(`contactInp${n}`).value = '';
+  const setMainObjValues = () => {
+    let updatedObj = { ...mainObj };
+    inputNames.forEach((name) => {
+      const inputValue = document.querySelector(`input[name="${name}"]`).value;
+      updatedObj[name] = inputValue;
+      // console.log(updatedObj[name]);
+    });
+    setmainObj(updatedObj);
+    console.log(mainObj);
+  };
+
+  const handleSubmit = async () => {
+    setMainObjValues();
+
+    // Prepare the CustomerData and ContactData payload
+    const customerPayload = {
+      CustomerName: formData.CustomerData.CustomerName,
+      CreatedBy: 1, // Set this as per your need
+      EditBy: 1, // Set this as per your need
+      isActive: true,
+    };
+
+    // This function filters out the mainObj based on the apiKeys and returns the valid payload object.
+    const preparePayload = (obj) => {
+      let payload = {};
+      apiKeys.forEach((key) => {
+        if (obj[key]) {
+          payload[key] = obj[key];
         }
-    }
+      });
+      return payload;
+    };
 
-    // service Locations
+    const contactPayload = contacts.map((contact) => {
+      return {
+        ...preparePayload(contact),
+        isPrimary: contact.isPrimary || false,
+        isActive: true,
+        CreatedBy: "2", // Set this as per your need
+      };
+    });
 
-    const handleServiceLocation = (event) => {
-        const value = event.target.value;
-        setSRlocation({
-            ...SRlocation,
-            adress: adress2,
-            [event.target.name]: value,
-        })
-    }
+    // POST request payload
+    const postData = {
+      CustomerData: customerPayload,
+      ContactData: contacts,
+    };
 
-    const addServiceLocation = (e) => {
-        e.preventDefault();
-        setServiceLocations([
-            ...serviceLocations,
-            { ...SRlocation, id: Math.round(Math.random() * 9999) }
-        ]);
-        setServiceLocArr([
-            ...serviceLocArr,
-            { ...SRlocation, adress: SLadress }
-        ])
-        for (let n = 1; n <= 4; n++) {
-            document.getElementById(`SRinput${n}`).value = '';
+    try {
+      const response = await axios.post(
+        "https://earthcoapi.yehtohoga.com/api/Customer/AddCustomer",
+        postData,
+        {
+          headers: {
+            "Content-Type": "application/json",
+          },
         }
-        setAdress2('');
-        setSLadress({});
+      );
+
+      console.log("postData,,,,,,,,,:", postData);
+
+      setFormData({
+        CustomerData: {
+          CustomerName: "",
+        },
+        ContactData: [],
+      });
+
+      setContacts([]); // Clear the contacts array
+      navigate("/Dashboard/Customers");
+    } catch (error) {
+      console.error("Error submitting data:", error);
     }
+  };
 
+  // const handleSubmit = async () => {
+  //   setMainObjValues();
+  //   try {
+  //     const response = await axios.post(
+  //       "https://earthcoapi.yehtohoga.com/api/Customer/AddCustomer",
+  //       {
+  //         CustomerData: {
+  //           CustomerName: formData.CustomerData.CustomerName,
+  //         },
+  //         ContactData: contacts.map((contact) => ({
+  //           FirstName: contact.FirstName,
+  //           LastName: contact.LastName,
+  //           Email: contact.Email,
+  //           Phone: contact.Phone,
+  //           CompanyName: contact.CompanyName,
+  //           Address: contact.Address,
+  //           isPrimary: contact.isPrimary,
+  //         })),
+  //       },
+  //       {
+  //         headers: {
+  //           "Content-Type": "application/json",
+  //         },
+  //       }
+  //     );
 
-    const postCustomer = async () => {
-        const response = await axios.post('http://localhost:8001/AddCustomer', {
-            ...customerInfo,
-            userLogin: loginData,
-            contacts,
-            customerAdress,
-            serviceLocation: serviceLocArr
-        })
-        if (response.status === 200) {
-            navigate('/Dashboard/Customers')
-        }
+  //     console.log("API response:", response.data);
+
+  //     setFormData({
+  //       CustomerData: {
+  //         CustomerName: "",
+  //       },
+  //       ContactData: [],
+  //     });
+
+  //     setContacts([]); // Clear the contacts array
+
+  //     navigate("/Dashboard/Customers");
+  //   } catch (error) {
+  //     console.error("Error submitting data:", error);
+  //   }
+  // };
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+
+    if (name === "CustomerName") {
+        setFormData(prevState => ({
+            ...prevState,
+            CustomerData: {
+                CustomerName: value,
+            }
+        }));
+    } else {
+        setFormData({
+            ...formData,
+            ContactData: {
+                ...formData.ContactData,
+                [name]: value,
+            },
+        });
     }
+    console.log(formData);
+};
 
-    const addUser = async () => {
-        await axios.post('http://localhost:8001/AddUser', {
-            fullName: customerInfo.customerName,
-            userName: loginData.email,
-            ...loginData
-        })
+  const addContact = (e) => {
+    e.preventDefault();
+
+    const newContact = {
+      FirstName: formData.ContactData.FirstName,
+      LastName: formData.ContactData.LastName,
+      Email: formData.ContactData.Email,
+      Phone: formData.ContactData.Phone,
+      CompanyName: formData.ContactData.CompanyName,
+      Address: formData.ContactData.Address,
+      isPrimary: primary
+    };
+
+    setContacts([...contacts, newContact]);
+
+    // Clear the form fields
+    setFormData((prevState) => ({
+      ...prevState,
+      ContactData: {
+        FirstName: "",
+        LastName: "",
+        Email: "",
+        Phone: "",
+        CompanyName: "",
+        Address: "",
+      },
+    }));
+
+    setPrimary(true);
+    clearInput();
+  };
+
+  const deleteContact = (index) => {
+    const updatedContacts = [...contacts];
+    updatedContacts.splice(index, 1);
+    setContacts(updatedContacts);
+  };
+
+  useEffect(() => {
+    if (loginState === "allow") {
+      setShowLogin(true);
+    } else {
+      setShowLogin(false);
     }
+  }, [loginState]);
 
-    const handleSubmit = () => {
-        if (contacts[0] !== undefined && serviceLocArr[0] !== undefined) {
-            postCustomer();
-        }
-        if (loginData.email !== undefined) {
-            addUser();
-        }
-    }
-
-    const deleteContact = (id) => {
-        const updatedArr = contacts.filter((item) => {
-            return item.id !== id;
-        })
-        setContacts(
-            updatedArr
-        )
-    }
-
-    const deleteLocation = (id) => {
-        const updatedArr = serviceLocations.filter((item) => {
-            return item.id !== id;
-        })
-        setServiceLocations(updatedArr)
-    }
-
-    const changeLogin = (event) => {
-        setLoginState(event.target.value);
-    }
-
-    useEffect(() => {
-        if (loginState === 'allow') {
-            setShowLogin(true)
-        }
-        else {
-            setShowLogin(false)
-        }
-    }, [loginState])
-
-    const handleLoginData = (event) => {
-        const value = event.target.value;
-        setLoginData({
-            ...loginData,
-            [event.target.name]: value
-        })
-    }
-
-
-    return (
-        <div className="container-fluid">
-            {/* <form onSubmit={(e) => e.preventDefault()}> */}
-            <div className="card">
-                <div className="card-header">
-                    <h4 className="modal-title" id="#gridSystemModal">Customer Info</h4>
-                </div>
-                <div className="card-body">
-                    <div className="row">
-                        <div className="col-xl-6 mb-3">
-                            <label htmlFor="exampleFormControlInput1" className="form-label">Customer Name <span className="text-danger">*</span></label>
-                            <input type="text" className="form-control" name='customerName' id="exampleFormControlInput1" onChange={handleCustomerInfo} placeholder="Customer Name" required />
-                        </div>
-                        <div className="col-xl-6 mb-3">
-                            <label htmlFor="exampleFormControlInput4" className="form-label">Title<span className="text-danger">*</span></label>
-                            <input type="text" className="form-control" onChange={handleCustomerInfo} name='title' id="exampleFormControlInput4" placeholder="Title" required />
-                        </div>
-                        <div className="col-xl-6 mb-3">
-                            <label className="form-label">Company Name<span className="text-danger">*</span></label>
-                            <input type="text" className="form-control" onChange={handleCustomerInfo} name='companyName' id="exampleFormControlInput3" placeholder="Company Name" required />
-                        </div>
-                        <div className="col-xl-6" style={{ position: 'relative' }}>
-                            <label className="form-label">Adress<span className="text-danger">*</span></label>
-                            <input type="text" value={adress1} onClick={() => { setShowPop1(!showPop1) }} style={{ cursor: 'pointer' }} className="form-control" id="exampleFormControlInput3" placeholder="Adress" readOnly required />
-                            {showPop1 || <AdressModal adress={customerAdress} setAdress={setCustomerAdress} boolState={setShowPop1} handleAdress={setAdress1} />}
-                        </div>
-                        <div className="col-xl-6 ">
-                            <label className="form-label">Description<span className="text-danger">*</span></label>
-                            <textarea className="form-txtarea form-control" name='description' onChange={handleCustomerInfo} rows="4" id="comment"></textarea>
-                        </div>
-                        <div className='col-xl-6'>
-                            <div className="row">
-                                <label className=" col-form-label col-form-label-lg">Allow User Login</label>
-                                <div className="mb-3 mb-0">
-                                    <form>
-                                        <div className="form-check custom-checkbox form-check-inline">
-                                            <input type="radio" className="form-check-input" onChange={changeLogin} value='dontallow' id="customRadioBox7" name="login" checked={loginState === 'dontallow'} />
-                                            <label className="form-check-label" for="customRadioBox7">Don't Allow</label>
-                                        </div>
-                                        <div className="form-check custom-checkbox form-check-inline">
-                                            <input type="radio" className="form-check-input" value='allow' onChange={changeLogin} id="customRadioBox8" name="login" checked={loginState === 'allow'} />
-                                            <label className="form-check-label" for="customRadioBox8">Allow</label>
-                                        </div>
-                                    </form>
-                                </div>
-                                {showLogin && <>
-                                    <div class="mb-3 row">
-                                        <label class="col-sm-3 text-right col-form-label">Email</label>
-                                        <div class="col-sm-9">
-                                            <input type="email" onChange={handleLoginData} name='email' class="form-control form-control-sm" placeholder="Email" required />
-                                        </div>
-                                    </div>
-                                    <div class="mb-3 row">
-                                        <label class="col-sm-3 text-right col-form-label">Password</label>
-                                        <div class="col-sm-9">
-                                            <input type='password' onChange={handleLoginData} name='password' class="form-control form-control-sm" placeholder="Password" required />
-                                        </div>
-                                    </div>
-                                </>}
-                            </div>
-                        </div>
-                    </div>
-                </div>
+  return (
+    <div className="container-fluid">
+      <form onSubmit={(e) => e.preventDefault()}>
+        <div className="card">
+          <div className="card-header">
+            <h4 className="modal-title" id="#gridSystemModal">
+              Customer Info
+            </h4>
+          </div>
+          <div className="card-body">
+            <div className="row">
+              <div className="col-xl-4 mb-3">
+                <label
+                  htmlFor="exampleFormControlInput1"
+                  className="form-label"
+                >
+                  Customer Name <span className="text-danger">*</span>
+                </label>
+                <input
+                  type="text"
+                  className="form-control form-control-sm"
+                  name="CustomerName"
+                  placeholder="Customer Name"
+                  onChange={handleChange}
+                  required
+                />
+              </div>
             </div>
+          </div>
+        </div>
+      </form>
 
-            <form onSubmit={addContact}>
-                <div className="card">
-                    <div className="card-header">
-                        <h4 className="modal-title" id="#gridSystemModal">Contact</h4>
-                    </div>
-                    <div className="card-body">
-                        <div className="row">
-                            <div className="col-lg-12">
-                                <div className="row">
-                                    <div className="col-xl-4 mb-3">
-                                        <label className="form-label">Contact Name<span className="text-danger">*</span></label>
-                                        <input type="text" id='contactInp1' onChange={handleContacts} name='contactName' className="form-control" placeholder="Contact Name" required />
-                                    </div>
-                                    <div className="col-xl-4 mb-3">
-                                        <label className="form-label">Email<span className="text-danger">*</span></label>
-                                        <input type="email" id='contactInp2' className="form-control" onChange={handleContacts} name='email' placeholder="Email" required />
-                                    </div>
-                                    <div className="col-xl-4 mb-3">
-                                        <label className="form-label">Phone<span className="text-danger">*</span></label>
-                                        <input type="number" id='contactInp3' onChange={handleContacts} name='phone' className="form-control" placeholder="Phone" />
-                                    </div>
-                                    <div className="col-xl-4 mb-3">
-                                        <label className="form-label">Mobile<span className="text-danger">*</span></label>
-                                        <input type="number" id='contactInp4' onChange={handleContacts} name='mobile' className="form-control" placeholder="Mobile" required />
-                                    </div>
-                                    <div className="col-xl-4 mb-3" style={{ display: 'flex', alignItems: 'center', paddingTop: '26px' }}>
-                                        <button className="btn btn-primary">Add</button>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <div className="col-xl-12">
-                            <div className="card">
-                                <div className="card-body p-0">
-                                    <div className="estDataBox">
-                                        <div className="itemtitleBar">
-                                            <h4>Contacts</h4>
-                                        </div>
-                                        <div className="table-responsive active-projects style-1">
-                                            <table id="empoloyees-tblwrapper" className="table">
-                                                <thead>
-                                                    <tr>
-                                                        <th>#</th>
-                                                        <th>Contact Name</th>
-                                                        <th>E-mail</th>
-                                                        <th>Phone</th>
-                                                        <th>Mobile</th>
-                                                        <th>Actions</th>
-                                                    </tr>
-                                                </thead>
-                                                <tbody>
-                                                    {contacts.map((contact, index) => {
-                                                        return (
-                                                            <>
-                                                                <tr>
-                                                                    <td>{index + 1}</td>
-                                                                    <td>{contact.contactName}</td>
-                                                                    <td>{contact.email}</td>
-                                                                    <td>{contact.phone}</td>
-                                                                    <td>{contact.mobile}</td>
-                                                                    <td>
-                                                                        <div className='badgeBox'>
-                                                                            <span className="actionBadge badge-danger light border-0" onClick={() => deleteContact(contact.id)}>
-                                                                                <span className="material-symbols-outlined">
-                                                                                    delete
-                                                                                </span>
-                                                                            </span>
-                                                                        </div>
-                                                                    </td>
-                                                                </tr>
-                                                            </>
-                                                        )
-                                                    })}
-                                                </tbody>
+      <form onSubmit={addContact}>
+        <div className="card">
+          <div className="card-header">
+            <h4 className="modal-title" id="#gridSystemModal">
+              Contact
+            </h4>
+          </div>
+          <div className="card-body">
+            <div className="row">
+              <div className="col-lg-12">
+                <div className="row">
+                  <div className="col-xl-4 mb-3">
+                    <label className="form-label">
+                      First Name<span className="text-danger">*</span>
+                    </label>
+                    <input
+                      type="text"
+                      ref={inputReffname}
+                      onChange={handleChange}
+                      name="FirstName"
+                      className="form-control form-control-sm"
+                      placeholder="First Name"
+                      required
+                    />
+                  </div>
 
-                                            </table>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
+                  <div className="col-xl-4 mb-3">
+                    <label className="form-label">
+                      Last Name<span className="text-danger">*</span>
+                    </label>
+                    <input
+                      type="text"
+                      ref={inputReflname}
+                      onChange={handleChange}
+                      name="LastName"
+                      className="form-control form-control-sm"
+                      placeholder="Last Name"
+                      required
+                    />
+                  </div>
+
+                  <div className="col-xl-4 mb-3">
+                    <label className="form-label">
+                      Email<span className="text-danger">*</span>
+                    </label>
+                    <input
+                      type="email"
+                      id="contactInp2"
+                      ref={inputRefemail}
+                      className="form-control form-control-sm"
+                      onChange={handleChange}
+                      name="Email"
+                      placeholder="Email"
+                      required
+                    />
+                  </div>
+                  <div className="col-xl-4 mb-3">
+                    <label className="form-label">
+                      Phone<span className="text-danger">*</span>
+                    </label>
+                    <input
+                      type="number"
+                      ref={inputRefphone}
+                      id="contactInp3"
+                      onChange={handleChange}
+                      name="Phone"
+                      className="form-control form-control-sm"
+                      placeholder="Phone"
+                    />
+                  </div>
+                  <div className="col-xl-4 mb-3">
+                    <label className="form-label">
+                      Company Name<span className="text-danger">*</span>
+                    </label>
+                    <input
+                      id="contactInp4"
+                      ref={inputRefCname}
+                      onChange={handleChange}
+                      name="CompanyName"
+                      className="form-control form-control-sm"
+                      placeholder="Company Name"
+                      required
+                    />
+                  </div>
+                  <div className="col-xl-4 mb-3">
+                    <label className="form-label">
+                      Address<span className="text-danger">*</span>
+                    </label>
+                    <input
+                      ref={inputRefaddress}
+                      onChange={handleChange}
+                      name="Address"
+                      className="form-control form-control-sm"
+                      placeholder="Address"
+                      required
+                    />
+                  </div>
+                  <div className="row">
+                    <label className="col-form-label col-form-label-lg">
+                      Set as Primary
+                    </label>
+                    <div className="mb-3 mb-0">
+                      <form>
+                        <div className="form-check custom-checkbox form-check-inline">
+                          <input
+                            type="checkbox"
+                            name="isPrimary"
+                            className="form-check-input"
+                            id="customCheckBox"
+                            checked={primary}
+                            onChange={() => setPrimary(!primary)}
+                          />
+
+                          <label
+                            className="form-check-label"
+                            htmlFor="customCheckBox"
+                          >
+                            Set as Primary
+                          </label>
                         </div>
+                      </form>
                     </div>
+                  </div>
+
+                  <div
+                    className="col-xl-4 mb-3"
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      paddingTop: "26px",
+                    }}
+                  >
+                    <button className="btn btn-primary">Add</button>
+                  </div>
                 </div>
-            </form>
-
-            <form onSubmit={addServiceLocation}>
-                <div className="card">
-                    <div className="card-header">
-                        <h4 className="modal-title" id="#gridSystemModal">Service Locations</h4>
-                    </div>
-                    <div className="card-body" id=''>
-                        <div className="row">
-                            <div className="col-lg-12">
-                                <div className="row">
-                                    <div className="col-xl-4 mb-3">
-                                        <label className="form-label">Name<span className="text-danger">*</span></label>
-                                        <input type="text" id='SRinput1' name='name' className="form-control" onChange={handleServiceLocation} placeholder="Name" required />
-                                    </div>
-                                    <div className="col-xl-4 mb-3" style={{ position: 'relative' }}>
-                                        <label className="form-label">Adress<span className="text-danger">*</span></label>
-                                        <input type="text" id='SRinput2' onClick={() => { setShowPop2(!showPop2) }} style={{ cursor: 'pointer' }} name='adress' className="form-control" value={adress2} placeholder="Adress" readOnly />
-                                        {showPop2 || <AdressModal boolState={setShowPop2} handleAdress={setAdress2} adress={SLadress} setAdress={setSLadress} />}
-
-                                    </div>
-                                    <div className="col-xl-4 mb-3">
-                                        <label className="form-label">Phone<span className="text-danger">*</span></label>
-                                        <input type="text" id='SRinput3' name='phone' className="form-control" onChange={handleServiceLocation} placeholder="Phone" />
-                                    </div>
-                                    <div className="col-xl-4 mb-3">
-                                        <label className="form-label">Customer Fax<span className="text-danger">*</span></label>
-                                        <input type="text" id='SRinput4' name='fax' className="form-control" onChange={handleServiceLocation} placeholder="Fax" required />
-                                    </div>
-                                    <div className="col-xl-4 mb-3" style={{ display: 'flex', alignItems: 'center', paddingTop: '26px' }}>
-                                        <button className="btn btn-primary">Add</button>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <div className="col-xl-12">
-                            <div className="card">
-                                <div className="card-body p-0">
-                                    <div className="estDataBox">
-                                        <div className="itemtitleBar">
-                                            <h4>Service Locations</h4>
-                                        </div>
-                                        <div className="table-responsive active-projects style-1">
-                                            <table id="empoloyees-tblwrapper" className="table">
-                                                <thead>
-                                                    <tr>
-                                                        <th>#</th>
-                                                        <th>Name</th>
-                                                        <th>Address</th>
-                                                        <th>Phone</th>
-                                                        <th>Customer Fax</th>
-                                                        <th>Actions</th>
-                                                    </tr>
-                                                </thead>
-                                                <tbody>
-                                                    {serviceLocations.map((contact, index) => {
-                                                        return (
-                                                            <>
-                                                                <tr>
-                                                                    <td>{index + 1}</td>
-                                                                    <td>{contact.name}</td>
-                                                                    <td>{contact.adress}</td>
-                                                                    <td>{contact.phone}</td>
-                                                                    <td>{contact.fax}</td>
-                                                                    <td>
-                                                                        <div className='badgeBox'>
-                                                                            <span className="actionBadge badge-danger light border-0" onClick={() => deleteLocation(contact.id)}>
-                                                                                <span className="material-symbols-outlined">
-                                                                                    delete
-                                                                                </span>
-                                                                            </span>
-                                                                        </div>
-                                                                    </td>
-                                                                </tr>
-                                                            </>
-                                                        )
-                                                    })}
-                                                </tbody>
-
-                                            </table>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </form>
-
-            {/* <div className="card">
-                <div className="card-header">
-                    <h4 className="modal-title" id="#gridSystemModal">User Login</h4>
-                </div>
-                <div className="card-body" id=''>
-                    <div className="row">
-                        <div className="col-lg-12">
-                            <div className="row">
-                                <div className="mb-3 mb-0">
-                                    <label className="col-sm-2 col-form-label col-form-label-lg">Allow User Login</label>
-                                    <div className="form-check custom-checkbox form-check-inline">
-                                        <input type="radio" className="form-check-input" onChange={changeLogin} value='dontallow' id="customRadioBox7" name="login" checked />
-                                        <label className="form-check-label" for="customRadioBox7">Don't Allow</label>
-                                    </div>
-                                    <div className="form-check custom-checkbox form-check-inline">
-                                        <input type="radio" className="form-check-input" value='allow' onChange={changeLogin} id="customRadioBox8" name="login" />
-                                        <label className="form-check-label" for="customRadioBox8">Allow</label>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div> */}
-
-            <div className='text-end'>
-                <button className="btn btn-primary me-1" onClick={handleSubmit}>Submit</button>
-                <NavLink to='/Dashboard/Customers'>
-                    <button className="btn btn-danger light ms-1">Cancel</button>
-                </NavLink>
+              </div>
             </div>
-            {/* </form> */}
-        </div >
-    )
-}
+            <div className="col-xl-12">
+              <div className="card">
+                <div className="card-body p-0">
+                  <div className="estDataBox">
+                    
+                    <div className="table-responsive active-projects style-1">
+                      <table id="empoloyees-tblwrapper" className="table">
+                        <thead>
+                          <tr>
+                            <th>#</th>
+                            <th>First Name</th>
+                            <th>Last Name</th>
+                            <th>Email</th>
+                            <th>Phone</th>
+                            <th>Company Name</th>
+                            <th>Address</th>
+                            <th>Primary</th>
+                            <th>Actions</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {contacts.map((contact, index) => (
+                            <tr key={index}>
+                              <td>{index + 1}</td>
+                              <td>{contact.FirstName}</td>
+                              <td>{contact.LastName}</td>
+                              <td>{contact.Email}</td>
+                              <td>{contact.Phone}</td>
+                              <td>{contact.CompanyName}</td>{" "}
+                              {/* Corrected this line */}
+                              <td>{contact.Address}</td>
+                              <td>{contact.isPrimary ? "Yes" : "No"}</td>{" "}
+                              {/* Corrected this line */}
+                              <td>
+                                <div className="badgeBox">
+                                  <span
+                                    className="actionBadge badge-danger light border-0 badgebox-size"
+                                    onClick={() => deleteContact(index)}
+                                  >
+                                    <span className="material-symbols-outlined badgebox-size">
+                                      delete
+                                    </span>
+                                  </span>
+                                </div>
+                              </td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </form>
 
-export default AddCutomer
+      {/* Contacts Table */}
+
+      <div className="text-end">
+        <button className="btn btn-primary me-1" onClick={handleSubmit}>
+          Submit
+        </button>
+        <NavLink to="/Dashboard/Customers">
+          <button className="btn btn-danger light ms-1">Cancel</button>
+        </NavLink>
+      </div>
+    </div>
+  );
+};
+
+export default AddCustomer;

@@ -3,13 +3,18 @@ import { Form } from "react-bootstrap";
 import TitleBar from "../TitleBar";
 import { NavLink } from "react-router-dom";
 import axios from "axios";
+import { Print, Email, Download  } from "@mui/icons-material";
 // import { Autocomplete, TextField } from '@mui/material';
 
-const AddSRform = () => {
+const UpdateSRForm = ({ serviceRequestId, setShowContent }) => {
   const [customers, setCustomers] = useState([]);
+
+  const [sRList, setSRList] = useState({});
 
   const [SRData, setSRData] = useState({
     ServiceRequestData: {
+      ServiceRequestId: serviceRequestId,
+
       CustomerId: 0,
       ServiceLocation: "",
       Contact: "",
@@ -27,9 +32,9 @@ const AddSRform = () => {
 
   const [itemInput, setItemInput] = useState({
     Name: "",
-    Qty: 0,
+    Qty: null,
     Description: "",
-    Rate: 0,
+    Rate: null,
   });
   const [tblSRItems, setTblSRItems] = useState([]);
 
@@ -47,6 +52,7 @@ const AddSRform = () => {
             : value,
       },
     }));
+    // console.log("object,,,,,,", SRData);
   };
 
   const submitHandler = async () => {
@@ -77,7 +83,9 @@ const AddSRform = () => {
         }
       );
       console.log(response.data);
+      console.log("payload izzzzzzz", formData);
       // Handle successful submission
+      window.location.reload();
     } catch (error) {
       console.error("API Call Error:", error);
     }
@@ -105,25 +113,57 @@ const AddSRform = () => {
     setFiles(updatedFiles);
   };
 
-  const fetchCustomers = async () => {
-
-    try {
-      console.log("in fetch customers");
-    const response = await axios.get(
-      "https://earthcoapi.yehtohoga.com/api/Customer/GetCustomersList"
-    );
-      setCustomers(response.data);
-      console.log("SR customer drop down is",response.data);
-      // console.log(customers);
-      //   console.log("Custommer list is", customers[1].CustomerName);
-    } catch (error) {
-      console.error("API Call Error:", error);
-    }
-  };
-
   useEffect(() => {
+    const fetchSR = async () => {
+      if(serviceRequestId === 0){return}
+      const response = await axios.get(
+        `https://earthcoapi.yehtohoga.com/api/ServiceRequest/GetServiceRequest?id=${serviceRequestId}`
+      );
+      try {
+        setSRList(response.data);
+        setSRData((prevData) => ({
+          ServiceRequestData: {
+            ...prevData.ServiceRequestData,
+            CustomerId: response.data.CustomerId,
+            ...response.data,
+          },
+        }));
+        // Set the tblSRItems state with the response.data.tblSRItems
+        setTblSRItems(response.data.tblSRItems);
+        // Set the itemInput state with the first item from the response.data.tblSRItems
+        if (response.data.tblSRItems && response.data.tblSRItems.length > 0) {
+          setItemInput(response.data.tblSRItems[0]);
+        }
+
+        if (response.data.tblSRFiles) {
+          setFiles((prevFiles) => [...prevFiles, ...response.data.tblSRFiles]);
+        }
+        console.log(" list is///////", response.data);
+      } catch (error) {
+        console.error("API Call Error:", error);
+      }
+    };
+
+    const fetchCustomers = async () => {
+      const response = await axios.get(
+        "https://earthcoapi.yehtohoga.com/api/Customer/GetCustomersList"
+      );
+      try {
+        setCustomers(response.data);
+        console.log(customers);
+      } catch (error) {
+        console.error("API Call Error:", error);
+      }
+    };
+
+    fetchSR();
     fetchCustomers();
-  }, []);
+  }, [serviceRequestId]);
+
+  // useEffect(() => {
+  //   fetchSR();
+  //   fetchCustomers();
+  // }, []);
 
   const icon = (
     <svg
@@ -161,9 +201,8 @@ const AddSRform = () => {
 
   return (
     <>
-      <TitleBar icon={icon} title=" Add Service Request" />
-      <div className="container-fluid">
-        <div className="card">
+      <div className="">
+        <div className="">
           <div className="card-body">
             {/* Add service form */}
             <div className="row mb-3">
@@ -185,19 +224,19 @@ const AddSRform = () => {
                   type="button"
                   className="btn btn-sm btn-outline-primary"
                 >
-                  Email
+                  <Email></Email>
                 </button>
                 <button
                   type="button"
                   className="btn btn-sm btn-outline-primary mx-2"
                 >
-                  Print
+                  <Print></Print>
                 </button>
                 <button
                   type="button"
                   className="btn btn-sm btn-outline-primary"
                 >
-                  Download
+                  <Download></Download>
                 </button>
               </div>
             </div>
@@ -209,12 +248,13 @@ const AddSRform = () => {
                 <br />
                 <div className="basic-form">
                   <div className="row">
-                    <div className="mb-2 col-md-9 SrCustomerList">
+                    <div className="col-xl-3 mb-2 col-md-9 ">
                       <label className="form-label">Customers</label>
                       <Form.Select
                         size="lg"
                         name="CustomerId"
                         onChange={handleInputChange}
+                        value={SRData.ServiceRequestData.CustomerId || ""}
                         aria-label="Default select example"
                         id="inputState"
                         className="bg-white"
@@ -230,53 +270,103 @@ const AddSRform = () => {
                         ))}
                       </Form.Select>
                     </div>
-                    <div className="mb-3 col-md-4">
+                    <div className="col-xl-3 mb-2 col-md-9 ">
+                      <label className="form-label">Servive Locations</label>
+                      <Form.Select
+                        size="lg"
+                        name="CustomerId"
+                        onChange={handleInputChange}
+                        value={SRData.ServiceRequestData.CustomerId || ""}
+                        aria-label="Default select example"
+                        id="inputState"
+                        className="bg-white"
+                      >
+                        <option value="">Service Location</option>{" "}
+                        {customers.map((customer) => (
+                          <option
+                            key={customer.CustomerId}
+                            value={customer.CustomerId}
+                          >
+                            {customer.CustomerName}
+                          </option>
+                        ))}
+                      </Form.Select>
+                    </div>
+                    {/* <div className="mb-3 col-md-4">
                       <label className="form-label">Service Location</label>
                       <input
                         type="text"
                         className="form-control form-control-sm"
+                        value={SRData.ServiceRequestData.ServiceLocation || ''}
                         name="ServiceLocation"
                         onChange={handleInputChange}
-                        placeholder="Service Location"
+                        placeholder={sRList.ServiceLocation || " "}
                       />
+                    </div> */}
+                    <div className="col-xl-3 mb-2 col-md-9 ">
+                      <label className="form-label">Contacts</label>
+                      <Form.Select
+                        size="lg"
+                        name="CustomerId"
+                        onChange={handleInputChange}
+                        value={SRData.ServiceRequestData.CustomerId || ""}
+                        aria-label="Default select example"
+                        id="inputState"
+                        className="bg-white"
+                      >
+                        <option value="">Customer</option>{" "}
+                        {customers.map((customer) => (
+                          <option
+                            key={customer.CustomerId}
+                            value={customer.CustomerId}
+                          >
+                            {customer.CustomerName}
+                          </option>
+                        ))}
+                      </Form.Select>
                     </div>
-                    <div className="mb-3 col-md-4">
+                    {/* <div className="mb-3 col-md-4">
                       <label>Contact</label>
                       <input
                         type="text"
                         name="Contact"
+                        value={SRData.ServiceRequestData.Contact || ''}
                         onChange={handleInputChange}
                         className="form-control form-control-sm"
-                        placeholder="Example@Example.com"
+                        placeholder={sRList.Contact || " "}
                       />
-                    </div>
-                  </div>
-                  <div className="row  mt-2 mb-2">
-                    <div className="col-md-4">
+                    </div> */}
+                    <div className="col-xl-3">
                       <label className="form-label">Job Name:</label>
                       <input
                         type="text"
                         name="JobName"
+                        value={SRData.ServiceRequestData.JobName || ""}
                         onChange={handleInputChange}
                         className="form-control form-control-sm"
-                        placeholder="Job Name"
+                        placeholder={sRList.JobName || " "}
                       />
                     </div>
-                    <div className=" col-md-4">
+                  </div>
+
+                  <div className="row  mt-2 mb-2">
+                    <div className=" col-xl-3 col-md-4">
                       <label className="form-label">Due Date:</label>
 
                       <input
                         type="date"
                         name="DueDate"
+                        value={SRData.ServiceRequestData.DueDate || ""}
                         onChange={handleInputChange}
                         className="form-control form-control-sm"
-                        placeholder="Due Date"
+                        placeholder={sRList.DueDate || " "}
                       />
                     </div>
-                    <div className=" col-md-4">
+                    <div className="col-xl-3 col-md-4">
                       <label className="form-label">Type:</label>
                       <Form.Select
                         name="SRTypeId"
+                        value={SRData.ServiceRequestData.SRTypeId || ""}
                         onChange={handleInputChange}
                         size="lg"
                         className="bg-white"
@@ -289,10 +379,22 @@ const AddSRform = () => {
                         <option value="Tree Care">Tree Care</option>
                       </Form.Select>
                     </div>
-                    <div className="col-lg-2 col-md-2 mt-2">
+                    <div className="col-xl-3 ">
+                      <label className="form-label">Notes</label>
+                      <textarea
+                        name="WorkRequest"
+                        value={SRData.ServiceRequestData.WorkRequest || ""}
+                        onChange={handleInputChange}
+                        className="form-txtarea form-control form-control-sm"
+                        placeholder={sRList.WorkRequest || " "}
+                        rows="2"
+                      ></textarea>
+                    </div>
+                    <div className="col-lg-2 col-md-2 ">
                       <label className="form-label">Status:</label>
                       <Form.Select
                         name="SRStatusId"
+                        value={SRData.ServiceRequestData.SRStatusId || ""}
                         onChange={handleInputChange}
                         size="lg"
                         className="bg-white"
@@ -320,7 +422,12 @@ const AddSRform = () => {
                       <label className="form-label">
                         Assign / Appointment:
                       </label>
-                      <Form.Select name="Assign" size="lg" className="bg-white">
+                      <Form.Select
+                        name="Assign"
+                        size="lg"
+                        className="bg-white"
+                        value={SRData.ServiceRequestData.Assign || ""}
+                      >
                         <option value={null}>Choose...</option>
                         <option value="option 1">option 1</option>
                         <option value="option 2">option 2</option>
@@ -336,7 +443,7 @@ const AddSRform = () => {
                 </div>
               </div>
             </div>
-            ;{/* modal */}
+            {/* modal */}
             <div className="modal fade" id="basicModal">
               <div className="modal-dialog" role="document">
                 <div className="modal-content">
@@ -371,6 +478,27 @@ const AddSRform = () => {
                             />
                           </div>
                         </div>
+                        
+
+                        <div className="mb-3 row">
+                          <label className="col-sm-3 col-form-label">
+                            Staff
+                          </label>
+                          <div className="col-sm-9">
+                          <Form.Select
+                        name="Assign"
+                        size="md"
+                        className="bg-white"
+                       
+                      >
+                        <option value={null}>Choose...</option>
+                        <option value="option 1">option 1</option>
+                        <option value="option 2">option 2</option>
+                        <option value="option 3">option 3</option>
+                      </Form.Select>
+                          </div>
+                        </div>
+
                         <div className="mb-3 row">
                           <label className="col-sm-3 col-form-label">
                             Quantity
@@ -431,6 +559,47 @@ const AddSRform = () => {
                             />
                           </div>
                         </div>
+
+                        <div className="mb-3 row">
+                          <label className="col-sm-3 col-form-label">
+                            Tax
+                          </label>
+                          <div className="col-sm-9">
+                          <Form.Select
+                        name="Tax"
+                        size="md"
+                        className="bg-white"
+                       
+                      >
+                        
+                        <option value="option 1">Non (Non-Taxable Sales)</option>
+                        <option value="option 2">Tax (Taxable Sales)</option>
+                        <option value="option 3">LBR (Non-Taxable Labour)</option>
+                      </Form.Select>
+                          </div>
+                        </div>
+                        <div className="mb-3 row">
+                          <label className="col-sm-3 col-form-label">
+                            
+                          </label>
+                          <div className="col-sm-9">
+                          <input
+                            type="checkbox"
+                            name="isPrimary"
+                            className="form-check-input"
+                            id="customCheckBox"
+                            
+                          />
+
+                          <label
+                            className="form-check-label"
+                            htmlFor="customCheckBox"
+                          >
+                           Billable
+                          </label>
+                          </div>
+                        </div>
+
                         <div className="row">
                           <label className="col-sm-3 col-form-label">
                             Item Total
@@ -439,7 +608,8 @@ const AddSRform = () => {
                             className="col-sm-9"
                             style={{ display: "flex", alignItems: "center" }}
                           >
-                            <h5 style={{ margin: "0" }}>$100.00</h5>
+                            <h5 style={{ margin: "0" }}>{itemInput.Rate * itemInput.Qty}</h5>
+
                           </div>
                         </div>
                       </form>
@@ -564,10 +734,8 @@ const AddSRform = () => {
                         {files.map((file, index) => (
                           <tr key={index}>
                             <td>{index + 1}</td>
-                            <td>{file.name}</td>
-                            <td>
-                              {file.lastModifiedDate.toLocaleDateString()}
-                            </td>
+                            <td>{file.FileName || file.name}</td>
+                            <td></td>
                             <td>{file.type || "N/A"}</td>
                             <td>{file.size} bytes</td>
                             <td>
@@ -605,8 +773,10 @@ const AddSRform = () => {
                       <label className="form-label">Work Requested:</label>
                       <textarea
                         name="WorkRequest"
+                        value={SRData.ServiceRequestData.WorkRequest || ""}
                         onChange={handleInputChange}
                         className="form-txtarea form-control form-control-sm"
+                        placeholder={sRList.WorkRequest || " "}
                         rows="2"
                       ></textarea>
                     </div>
@@ -616,8 +786,10 @@ const AddSRform = () => {
                       {/* Adjust the column size as needed */}
                       <textarea
                         name="ActionTaken"
+                        value={SRData.ServiceRequestData.ActionTaken || ""}
                         onChange={handleInputChange}
                         className="form-txtarea form-control form-control-sm"
+                        placeholder={sRList.ActionTaken || " "}
                         rows="2"
                       ></textarea>
                     </div>
@@ -628,9 +800,10 @@ const AddSRform = () => {
                       <input
                         type="date"
                         name="CompletedDate"
+                        value={SRData.ServiceRequestData.CompletedDate || ""}
                         onChange={handleInputChange}
                         className="form-control form-control-sm"
-                        placeholder="CompletedDate"
+                        placeholder={sRList.CompletedDate || " "}
                       />
                     </div>
                   </div>
@@ -649,15 +822,22 @@ const AddSRform = () => {
               >
                 Submit
               </button>
-              <NavLink to="/Dashboard/Service-Requests">
-                <button className="btn btn-danger light ms-1">Cancel</button>
-              </NavLink>
+
+              <button
+                className="btn btn-danger light ms-1"
+                onClick={() => {
+                  setShowContent(true);
+                }}
+              >
+                Cancel
+              </button>
             </div>
           </div>
         </div>
+        {/* <div>{sRList}</div> */}
       </div>
     </>
   );
 };
 
-export default AddSRform;
+export default UpdateSRForm;

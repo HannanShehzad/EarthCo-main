@@ -4,43 +4,43 @@ import { Form } from "react-bootstrap";
 import { DataContext } from "../../context/AppData";
 import { NavLink } from "react-router-dom";
 import axios from "axios";
+import { Print, Email, Download } from "@mui/icons-material";
+import TextField from "@mui/material/TextField";
+import Autocomplete from "@mui/material/Autocomplete";
 
+const UpdateEstimateForm = ({ setShowContent, estimateId }) => {
+  const [estimates, setEstimates] = useState({});
 
-
-
-const AddEstimateForm = () => {
-  
   const [formData, setFormData] = useState({
-   
-      CustomerId: 0,
-      ServiceLocation: "",
-      Email: "",
-      EstimateNumber: "",
-      IssueDate: "",
-      EstimateNotes: "",
-      ServiceLocationNotes: "",
-      PrivateNotes: "",
-      QBStatus: "",
-      EstimateStatusId: 0,
-      tblEstimateItems: [],
-    
+    CustomerId: 0,
+    ServiceLocation: "",
+    Email: "",
+    EstimateNumber: "",
+    IssueDate: "",
+    EstimateNotes: "",
+    ServiceLocationNotes: "",
+    PrivateNotes: "",
+    QBStatus: "",
+    EstimateStatusId: 0,
+    tblEstimateItems: [],
   });
   const [itemForm, setItemForm] = useState({
     Name: "",
     Qty: null,
     Description: "",
-    Address:"12345",
+    Address: "12345",
     Rate: null,
     isActive: true,
     CreatedBy: 2,
-    
-
   });
 
   const inputFile = useRef(null);
   const [Files, setFiles] = useState([]);
 
   const [customers, setCustomers] = useState([]);
+
+  const [selectedCustomer, setSelectedCustomer] = useState(null);
+  const [selectedSL, setSelectedSL] = useState(null);
 
   const fetchCustomers = async () => {
     const response = await axios.get(
@@ -54,45 +54,99 @@ const AddEstimateForm = () => {
     }
   };
 
-  const handleInputChange = (e) => {
+  const fetchEstimates = async () => {
+    if (estimateId === 0) {
+      return;
+    }
+    const response = await axios.get(
+      `https://earthcoapi.yehtohoga.com/api/Estimate/GetEstimate?id=${estimateId}`
+    );
+    try {
+      setEstimates(response.data);
+
+      setFormData((prevState) => ({
+        ...prevState,
+        CustomerId: response.data.CustomerId,
+        ...response.data,
+      }));
+
+      if (response.data.tblEstimateItems) {
+        setFormData((prevState) => ({
+          ...prevState,
+          CustomerId: response.data.CustomerId,
+          tblEstimateItems: response.data.tblEstimateItems,
+        }));
+      } else {
+        setFormData((prevState) => ({
+          ...prevState,
+          CustomerId: response.data.CustomerId,
+          tblEstimateItems: [],
+        }));
+      }
+
+      console.log("estimateeeeeee list is", response.data.tblEstimateItems);
+    } catch (error) {
+      console.error("API Call Error:", error);
+    }
+  };
+
+  const handleInputChange = (e, newValue) => {
     const { name, value } = e.target;
 
-    const adjustedValue = ["CustomerId", "Qty", "Rate", "EstimateStatusId"].includes(name) ? Number(value) : value;
+    setSelectedCustomer(newValue);
+    setSelectedSL(newValue)
+
+    // Convert to number if the field is CustomerId, Qty, Rate, or EstimateStatusId
+    const adjustedValue = [
+      "CustomerId",
+      "Qty",
+      "Rate",
+      "EstimateStatusId",
+    ].includes(name)
+      ? Number(value)
+      : value;
 
     setFormData((prevData) => ({ ...prevData, [name]: adjustedValue }));
-};
+    console.log("opopopopopop", selectedCustomer);
+  };
 
+  const handleSubmit = () => {
+    const postData = new FormData();
 
-const handleSubmit = () => {
-  const postData = new FormData();
-
-  const filteredItems = formData.tblEstimateItems.map(item => {
+    // Before merging, filter out the unnecessary fields from each item in tblEstimateItems
+    const filteredItems = formData.tblEstimateItems.map((item) => {
       const { id, Amount, Approved, ...rest } = item;
       return rest;
-  });
+    });
 
-  const mergedEstimateData = {
+    // Merge the current items with the new items for EstimateData
+    const mergedEstimateData = {
       ...formData,
+      EstimateId: estimateId,
       CreatedBy: 2,
       EditBy: 2,
       isActive: true,
-      tblEstimateItems: [...filteredItems, itemForm],  
+      tblEstimateItems: [...filteredItems, itemForm], // using the filteredItems here
+    };
+
+    console.log("mergedEstimateData:", mergedEstimateData);
+    // console.log("data:", data);
+
+    postData.append("EstimateData", JSON.stringify(mergedEstimateData));
+    console.log(JSON.stringify(mergedEstimateData));
+    // Appending files to postData
+    Files.forEach((fileObj) => {
+      postData.append("Files", fileObj);
+    });
+
+    submitData(postData);
   };
 
-  console.log("mergedEstimateData:", mergedEstimateData);
-  // console.log("data:", data);
-
-  postData.append("EstimateData", JSON.stringify(mergedEstimateData));
-  console.log(JSON.stringify(mergedEstimateData));
-  // Appending files to postData
-  Files.forEach((fileObj) => {
-      postData.append('Files', fileObj);
-  });
-
-  submitData(postData);
-};
-
-
+  // const appendFilesToFormData = (formData) => {
+  //   Files.forEach((fileObj) => {
+  //     formData.append("Files", fileObj.actualFile);
+  //   });
+  // };
 
   const submitData = async (postData) => {
     try {
@@ -115,13 +169,17 @@ const handleSubmit = () => {
       console.error("API Call Error:", error);
     }
 
+    // Logging FormData contents (for debugging purposes)
     for (let [key, value] of postData.entries()) {
-      console.log("filessss", key, value);
+      console.log("fpayload....", key, value);
     }
+    // window.location.reload();
+
     // console.log("post data izzz",postData);
   };
 
   useEffect(() => {
+    fetchEstimates();
     fetchCustomers();
   }, []);
 
@@ -133,9 +191,9 @@ const handleSubmit = () => {
       Amount: Number(itemForm.Qty) * Number(itemForm.Rate),
       Approved: false,
     };
-  
-   
-    setFormData(prevData => ({
+
+    // Clear itemForm fields after adding the new item
+    setFormData((prevData) => ({
       ...prevData,
       tblEstimateItems: [...prevData.tblEstimateItems, newItem],
     }));
@@ -147,36 +205,44 @@ const handleSubmit = () => {
       Rate: 0,
       isActive: true,
       CreatedBy: 2,
-  });
+    });
   };
-  
 
   const handleStatusChange = (e) => {
-    const value = parseInt(e.target.value, 10); 
-  
+    const value = parseInt(e.target.value, 10); // This converts the string to an integer
+
     setFormData((prevData) => ({
       ...prevData,
       EstimateStatusId: value,
     }));
-  }; 
-  
-  
-  
+  };
 
   const handleChange = (e) => {
     const { name, value } = e.target;
 
-    const adjustedValue = ["Qty", "Rate", "EstimateStatusId"].includes(name) ? Number(value) : value;
+    // Convert to number if the field is Qty or Rate
+    const adjustedValue = ["Qty", "Rate", "EstimateStatusId"].includes(name)
+      ? Number(value)
+      : value;
 
     setItemForm((prevState) => ({ ...prevState, [name]: adjustedValue }));
-};
+  };
 
   const deleteItem = (id) => {
-    const updatedArr = formData.tblEstimateItems.filter((object) => object.id !== id);
+    const updatedArr = formData.tblEstimateItems.filter(
+      (object) => object.id !== id
+    );
     setFormData((prevData) => ({
       ...prevData,
       tblEstimateItems: updatedArr,
     }));
+  };
+
+  const handleDeleteFile = (index) => {
+    // Create a copy of the Files array without the file to be deleted
+    const updatedFiles = [...Files];
+    updatedFiles.splice(index, 1);
+    setFiles(updatedFiles);
   };
 
   const addFile = () => {
@@ -205,131 +271,146 @@ const handleSubmit = () => {
     <div className="card">
       <div className="card-body">
         <div className="row">
-          <div className="basic-form col-md-6">
-            <div className="row">
-              <div className="col-md-8 mb-3">
-                <div className="row statusRow">
-                  <div
-                    className="col-lg-4 col-md-12 mb-2"
-                    style={{ minWidth: "150px" }}
-                  >
-                    <Form.Select
-                      aria-label="Default select example"
-                      value={formData.EstimateStatusId}
-                      onChange={handleStatusChange}
-                      name="Status"
-                      size="md"
-                      id="inlineFormCustomSelect"
-                    >
-                      <option value={null}>Select</option>
-                      <option value={1}>Open</option>
-                      <option value={2}>Approved</option>
-                      <option value={3}>Closed Billed</option>
-                    </Form.Select>
-                  </div>
-                  <div className="col-lg-8 col-md-12 actionBtns">
-                    <button
-                      type="button"
-                      className="btn btn-sm btn-outline-primary"
-                    >
-                      Email
-                    </button>
-                    <button
-                      type="button"
-                      className="btn btn-sm btn-outline-primary "
-                    >
-                      Print
-                    </button>
-                    <button
-                      type="button"
-                      className="btn btn-sm btn-outline-primary"
-                      style={{ minWidth: "120px" }}
-                    >
-                      Download
-                    </button>
-                  </div>
-                </div>
-              </div>
-            </div>
-            <form>
-              <div className="row">
-                <div className="mb-2 col-md-9">
-                  <Form.Select
-                    value={formData.CustomerId}
-                    name="CustomerId"
-                    size="lg"
-                    onChange={handleInputChange}
-                    aria-label="Default select example"
-                    id="inputState"
-                    className="bg-white"
-                  >
-                    <option value="">Customer</option>{" "}
-                    {customers.map((customer) => (
-                      <option
-                        key={customer.CustomerId}
-                        value={customer.CustomerId}
-                      >
-                        {customer.CustomerName}
-                      </option>
-                    ))}
-                  </Form.Select>
-                 
-                </div>
-
-                <div className="mb-4 col-md-9">
-                  <input
-                    value={formData.ServiceLocation}
-                    name="ServiceLocation"
-                    onChange={handleInputChange}
-                    type="text"
-                    className="form-control form-control-sm"
-                    placeholder="Service Location"
-                  />
-                </div>
-
-                <div className="mb-4 col-md-9">
-                  <input
-                    value={formData.Email}
-                    name="Email"
-                    onChange={handleInputChange}
-                    type="text"
-                    className="form-control form-control-sm"
-                    placeholder="Example@gmail.com."
-                  />
-                </div>
-              </div>
-            </form>
+          <div className="col-xl-3 mt-2">
+            <Form.Select
+              aria-label="Default select example"
+              value={formData.EstimateStatusId}
+              onChange={handleStatusChange}
+              name="Status"
+              size="md"
+              id="inlineFormCustomSelect"
+            >
+              <option value={null}>Select</option>
+              <option value={1}>Open</option>
+              <option value={2}>Approved</option>
+              <option value={3}>Closed Billed</option>
+            </Form.Select>
           </div>
-          <div className="basic-form col-md-6">
-            <form>
-              <div
-                className="row"
-                style={{ display: "flex", justifyContent: "end" }}
+          <div className="col-xl-4">
+            <div
+              className="col-lg-4 col-md-12 mb-2"
+              style={{ minWidth: "150px" }}
+            ></div>
+            <div className="col-lg-8 col-md-12 ">
+              <button
+                type="button"
+                className="btn btn-sm btn-outline-primary estm-action-btn"
               >
-                <div className="mb-3 col-md-9">
-                  <label className="form-label">Estimate No.</label>
-                  <input
-                    value={formData.EstimateNumber}
-                    name="EstimateNumber"
-                    onChange={handleInputChange}
-                    type="text"
-                    className="form-control form-control-sm"
-                    placeholder="Estimate No."
-                  />
-                </div>
-                <div className="mb-3 col-md-9">
-                  <label className="form-label">Issued Date</label>
-                  <input
-                    value={formData.IssueDate}
-                    name="IssueDate"
-                    onChange={handleInputChange}
-                    className="form-control form-control-sm input-limit-datepicker"
-                    placeholder="Issued Date"
-                    type="date"
-                  />
-                </div>
-              </div>
-            </form>
+                <Email />
+              </button>
+              <button
+                type="button"
+                className="btn btn-sm btn-outline-primary estm-action-btn"
+              >
+                <Print></Print>
+              </button>
+              <button
+                type="button"
+                className="btn btn-sm btn-outline-primary estm-action-btn"
+                // style={{ minWidth: "120px" }}
+              >
+                <Download />
+              </button>
+            </div>
+          </div>
+        </div>
+        <div className="row mt-3">
+          <div className="col-xl-4">
+            <label className="form-label">Customer</label>
+            <Autocomplete
+              value={selectedCustomer}
+              onChange={handleInputChange}
+              options={customers}
+              getOptionLabel={(customer) => customer.CustomerName}
+              renderInput={(params) => (
+                <TextField
+                  {...params}
+                  label="Select Customer"
+                  variant="outlined"
+                  size="small"
+                />
+              )}
+            />
+          </div>
+          <div className="col-xl-4">
+            <label className="form-label">Service location</label>
+            <Form.Select
+              value={formData.CustomerId || 0}
+              name="CustomerId"
+              size="md"
+              onChange={handleInputChange}
+              aria-label="Default select example"
+              id="inputState"
+              className="bg-white"
+            >
+              {" "}
+              <option value="" selected>
+                Contacts
+              </option>
+              {customers.map((customer) => (
+                <option key={customer.CustomerId} value={customer.CustomerId}>
+                  {customer.CustomerName}
+                </option>
+              ))}
+            </Form.Select>
+          </div>
+          <div className="col-xl-4">
+            <label className="form-label">Contact</label>
+            <Form.Select
+              value={formData.CustomerId || 0}
+              name="CustomerId"
+              size="md"
+              onChange={handleInputChange}
+              aria-label="Default select example"
+              id="inputState"
+              className="bg-white"
+            >
+              {" "}
+              <option value="" selected>
+                Contacts
+              </option>
+              {customers.map((customer) => (
+                <option key={customer.CustomerId} value={customer.CustomerId}>
+                  {customer.CustomerName}
+                </option>
+              ))}
+            </Form.Select>
+          </div>
+        </div>
+
+        <div className="row mt-3 mb-3">
+          <div className="col-xl-3">
+            <label className="form-label">Email</label>
+            <input
+              value={formData.Email}
+              name="Email"
+              onChange={handleInputChange}
+              type="text"
+              className="form-control form-control-sm"
+              placeholder={estimates.Email || "Email"}
+            />
+          </div>
+          <div className="col-xl-3">
+            <label className="form-label">Estimate No.</label>
+            <input
+              value={formData.EstimateNumber}
+              name="EstimateNumber"
+              onChange={handleInputChange}
+              type="text"
+              className="form-control form-control-sm"
+              placeholder={estimates.EstimateNumber || "Estimate Number"}
+            />
+          </div>
+          <div className=" col-xl-3">
+            <label className="form-label">Issued Date</label>
+            <input
+              value={formData.IssueDate}
+              name="IssueDate"
+              onChange={handleInputChange}
+              className="form-control form-control-sm input-limit-datepicker"
+              placeholder={estimates.IssueDate || "Issue Date"}
+              type="date"
+            />
           </div>
         </div>
 
@@ -407,6 +488,20 @@ const handleSubmit = () => {
                         />
                       </div>
                     </div>
+                    <div className="mb-3 row">
+                      <label className="col-sm-3 col-form-label">Tax</label>
+                      <div className="col-sm-9">
+                        <Form.Select name="Tax" size="md" className="bg-white">
+                          <option value="option 1">
+                            Non (Non-Taxable Sales)
+                          </option>
+                          <option value="option 2">Tax (Taxable Sales)</option>
+                          <option value="option 3">
+                            LBR (Non-Taxable Labour)
+                          </option>
+                        </Form.Select>
+                      </div>
+                    </div>
                     <div className="row">
                       <label className="col-sm-3 col-form-label">
                         Item Total
@@ -441,7 +536,7 @@ const handleSubmit = () => {
         </div>
 
         {/* item table */}
-        <div className="card">
+        <div className="">
           <div className="card-body p-0">
             <div className="estDataBox">
               <div className="itemtitleBar">
@@ -456,7 +551,7 @@ const handleSubmit = () => {
                 + Add Items
               </button>
               <div className="table-responsive active-projects style-1">
-              <table id="empoloyees-tblwrapper" className="table">
+                <table id="empoloyees-tblwrapper" className="table">
                   <thead>
                     <tr>
                       <th>#</th>
@@ -470,29 +565,40 @@ const handleSubmit = () => {
                     </tr>
                   </thead>
                   <tbody>
-                    {formData.tblEstimateItems.map((item) => (
-                      <tr key={item.id}>
-                        <td>{item.id}</td>
-                        <td>{item.Qty}</td>
-                        <td>{item.Name}</td>
-                        <td>{item.Description}</td>
-                        <td>{item.Rate}</td>
-                        <td>{item.Amount}</td>
-                        <td>{item.Approved ? "Yes" : "No"}</td>
-                        <td>
-                                <div className="badgeBox">
-                                  <span
-                                    className="actionBadge badge-danger light border-0 badgebox-size"
-                                    onClick={() => {deleteItem(item.id)}}
-                                  >
-                                    <span className="material-symbols-outlined badgebox-size">
-                                      delete
-                                    </span>
+                    {
+                      formData.tblEstimateItems &&
+                      formData.tblEstimateItems.length > 0 ? (
+                        formData.tblEstimateItems.map((item) => (
+                          <tr key={item.id}>
+                            <td>{item.id}</td>
+                            <td>{item.Qty}</td>
+                            <td>{item.Name}</td>
+                            <td>{item.Description}</td>
+                            <td>{item.Rate}</td>
+                            <td>{item.Amount}</td>
+                            <td>{item.Approved ? "Yes" : "No"}</td>
+                            <td>
+                              <div className="badgeBox">
+                                <span
+                                  className="actionBadge badge-danger light border-0 badgebox-size"
+                                  onClick={() => {
+                                    deleteItem(item.id);
+                                  }}
+                                >
+                                  <span className="material-symbols-outlined badgebox-size">
+                                    delete
                                   </span>
-                                </div>
-                              </td>
-                      </tr>
-                    ))}
+                                </span>
+                              </div>
+                            </td>
+                          </tr>
+                        ))
+                      ) : (
+                        <tr>
+                          <td colSpan="8">No items available</td>
+                        </tr>
+                      ) /* Add a null check or alternative content if formData.tblEstimateItems is empty */
+                    }
                   </tbody>
                 </table>
               </div>
@@ -500,7 +606,8 @@ const handleSubmit = () => {
           </div>
         </div>
         {/* Files */}
-        <div className="card">
+
+        <div className="">
           <div className="card-body p-0">
             <div className="estDataBox">
               <div className="itemtitleBar">
@@ -524,17 +631,34 @@ const handleSubmit = () => {
                 <table id="empoloyees-tblwrapper" className="table">
                   <thead>
                     <tr>
+                      <th>#</th>
                       <th>File Name</th>
                       <th>Caption</th>
                       <th>Date</th>
+                      <th>Action</th>
                     </tr>
                   </thead>
                   <tbody>
                     {Files.map((file, index) => (
                       <tr key={index}>
+                        <td>{index + 1}</td>
                         <td>{file.name}</td>
                         <td>{file.caption}</td>
                         <td>{file.date}</td>
+                        <td>
+                          <div className="badgeBox">
+                            <span
+                              className="actionBadge badge-danger light border-0 badgebox-size"
+                              onClick={() => {
+                                handleDeleteFile(index);
+                              }}
+                            >
+                              <span className="material-symbols-outlined badgebox-size">
+                                delete
+                              </span>
+                            </span>
+                          </div>
+                        </td>
                       </tr>
                     ))}
                   </tbody>
@@ -554,6 +678,7 @@ const handleSubmit = () => {
                       <h4 className="card-title">Estimate Notes</h4>
                       <div className="mb-3">
                         <textarea
+                          placeholder={estimates.EstimateNotes || ""}
                           value={formData.EstimateNotes}
                           name="EstimateNotes"
                           onChange={handleInputChange}
@@ -570,6 +695,7 @@ const handleSubmit = () => {
                       <h4 className="card-title">Service Location Notes</h4>
                       <div className="mb-3">
                         <textarea
+                          placeholder={estimates.ServiceLocationNotes || ""}
                           value={formData.ServiceLocationNotes}
                           name="ServiceLocationNotes"
                           onChange={handleInputChange}
@@ -586,6 +712,7 @@ const handleSubmit = () => {
                       <h4 className="card-title">Private Notes</h4>
                       <div className="mb-3">
                         <textarea
+                          placeholder={estimates.PrivateNotes || ""}
                           value={formData.PrivateNotes}
                           name="PrivateNotes"
                           onChange={handleInputChange}
@@ -651,7 +778,14 @@ const handleSubmit = () => {
               Submit
             </button>
             <NavLink to="/Dashboard/Estimates">
-              <button className="btn btn-danger light ms-1">Cancel</button>
+              <button
+                className="btn btn-danger light ms-1"
+                onClick={() => {
+                  setShowContent(true);
+                }}
+              >
+                Cancel
+              </button>
             </NavLink>
           </div>
         </div>
@@ -660,4 +794,4 @@ const handleSubmit = () => {
   );
 };
 
-export default AddEstimateForm;
+export default UpdateEstimateForm;
