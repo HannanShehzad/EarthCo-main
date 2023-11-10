@@ -44,7 +44,7 @@ const theme = createTheme({
   },
 });
 
-const ServiceRequestTR = ({headers, serviceRequest = [], setShowCards, fetchServiceRequest }) => {
+const ServiceRequestTR = ({headers, serviceRequest , setShowCards, fetchServiceRequest }) => {
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(10);
   const [sorting, setSorting] = useState({ field: "", order: "" });
@@ -63,7 +63,7 @@ const ServiceRequestTR = ({headers, serviceRequest = [], setShowCards, fetchServ
     "Service Request #": "ServiceRequestNumber",
     "Customer Name": "CustomerId",
     "Assigned to": "Assign",
-    Status: "SRStatusId",
+    "Status": "SRStatusId",
     "Work Requested": "WorkRequest",
     "Date Created": "CreatedDate",
   };
@@ -76,17 +76,11 @@ const ServiceRequestTR = ({headers, serviceRequest = [], setShowCards, fetchServ
       const response = await axios.get(
         `https://earthcoapi.yehtohoga.com/api/ServiceRequest/DeleteServiceRequest?id=${id}`,{headers}        
        
-      );
-
-      if (!response.ok) {
-        throw new Error("Failed to delete ServiceRequest");
-      }
-
-      const data = await response.json();
+      );   
 
       // Handle the response. For example, you can reload the customers or show a success message
-      console.log("ServiceRequest deleted successfully:", data);
-      window.location.reload();
+      console.log("ServiceRequest deleted successfully:",);
+      fetchServiceRequest()
     } catch (error) {
       console.error("There was an error deleting the customer:", error);
     }
@@ -287,8 +281,9 @@ const ServiceRequestTR = ({headers, serviceRequest = [], setShowCards, fetchServ
                             <Button
                               color="error"
                               className="delete-button"
-                              onClick={() =>
-                                handleDelete(customer.ServiceRequestId)
+                              onClick={() =>{
+                                handleDelete(customer.ServiceRequestId);
+                                console.log("delete id", customer.ServiceRequestId)}
                               }
                             >
                               <Delete />

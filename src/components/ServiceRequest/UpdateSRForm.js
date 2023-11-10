@@ -256,13 +256,13 @@ const UpdateSRForm = ({
     //   "ServiceRequestData",
     //   JSON.stringify(SRData.ServiceRequestData)
     // );
-    files.forEach((fileObj) => {
-      formData.append("Files", fileObj);
+    files.forEach((file) => {
+      formData.append("Files", file);
     });
 
     const headers = {
       Authorization: `Bearer ${token}`,
-      "Content-Type": "multipart/form-data", // Important for multipart/form-data requests
+      "Content-Type": "multipart/form-data",
     };
 
     try {
@@ -306,8 +306,16 @@ const UpdateSRForm = ({
   };
 
   const trackFile = (e) => {
-    const newFiles = Array.from(e.target.files);
-    setFiles((prevFiles) => [...prevFiles, ...newFiles]);
+    const uploadedFile = e.target.files[0];
+    if (uploadedFile) {
+      // const newFile = {
+      // actualFile: uploadedFile,
+      // name: uploadedFile.name,
+      // caption: uploadedFile.name,
+      // date: new Date().toLocaleDateString(),
+      // };
+      setFiles((prevFiles) => [...prevFiles, uploadedFile]);
+    }
   };
   const addFile = () => {
     inputFile.current.click();
@@ -325,31 +333,32 @@ const UpdateSRForm = ({
       }
       
 
+      try {
       const response = await axios.get(
         `https://earthcoapi.yehtohoga.com/api/ServiceRequest/GetServiceRequest?id=${serviceRequestId}`,
         { headers }
       );
-      try {
-        setInputValue(response.data.CompanyName);
-        setSRList(response.data);
+        setInputValue(response.data.Data.CustomerId);
+        setSRList(response.data.Data);
+        
         setSRData((prevData) => ({
           ServiceRequestData: {
             ...prevData.ServiceRequestData,
-            CustomerId: response.data.CustomerId,
-            ...response.data,
+            CustomerId: response.data.Data.CustomerId,
+            ...response.data.Data,
           },
         }));
         // Set the tblSRItems state with the response.data.tblSRItems
-        setTblSRItems(response.data.tblSRItems);
+        setTblSRItems(response.data.Data.ItemData);
         // Set the itemInput state with the first item from the response.data.tblSRItems
-        if (response.data.tblSRItems && response.data.tblSRItems.length > 0) {
-          setItemInput(response.data.tblSRItems[0]);
+        if (response.data.Data.ItemData && response.data.Data.ItemData.length > 0) {
+          setItemInput(response.data.Data.tblSRItems[0]);
         }
 
-        if (response.data.tblSRFiles) {
-          setFiles((prevFiles) => [...prevFiles, ...response.data.tblSRFiles]);
+        if (response.data.Data.ItemData) {
+          setFiles((prevFiles) => [...prevFiles, ...response.data.Data.tblSRFiles]);
         }
-        console.log(" list is///////", response.data);
+        console.log(" list is///////", response.data.Data);
       } catch (error) {
         console.error("API Call Error:", error);
       }
@@ -682,7 +691,7 @@ const UpdateSRForm = ({
                           <th>Actions</th>
                         </tr>
                       </thead>
-                      <tbody>
+                      {tblSRItems ? (<tbody>
                         {tblSRItems.map((item, index) => (
                           <tr key={index}>
                             <td>{item.Name}</td>
@@ -812,7 +821,14 @@ const UpdateSRForm = ({
                             </button>
                           </td>
                         </tr>
-                      </tbody>
+                      </tbody>): (
+  <tbody>
+    <tr>
+      <td colSpan="7">No items found</td>
+    </tr>
+  </tbody>
+)}
+                      
                     </table>
                   </div>
                 </div>
