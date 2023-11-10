@@ -7,9 +7,14 @@ import CustomerModal from "../Modals/CustomerModal";
 import { CustomerContext } from "../../context/CustomerData";
 import CircularProgress from "@mui/material/CircularProgress";
 import Alert from '@mui/material/Alert';
+import Cookies from "js-cookie";
 
 
 const CustomersTable = () => {
+  const token = Cookies.get("token");
+  const headers = {
+    Authorization: `Bearer ${token}`,
+  };
   const { selectedCustomer } = useContext(CustomerContext);
   const [customers, setCustomers] = useState([]);
   const [customerAddSuccess, setCustomerAddSuccess] = useState(false)
@@ -20,7 +25,7 @@ const CustomersTable = () => {
   const fetchCustomers = async () => {
     try {
       const response = await axios.get(
-        "https://earthcoapi.yehtohoga.com/api/Customer/GetCustomersList"
+        "https://earthcoapi.yehtohoga.com/api/Customer/GetCustomersList",{headers}
       );
       setCustomers(response.data);
       if (response.data != null) {

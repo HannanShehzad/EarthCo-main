@@ -47,7 +47,7 @@ const AddStaff = ({selectedStaff, settoggleAddStaff, setAddStaffSuccess,getStaff
   const [formValid, setFormValid] = useState(false);
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
-  const [passwordMismatch, setPasswordMismatch] = useState(false);
+  const [passwordMatch, setPasswordMatch] = useState(false);
 
 
   const token = Cookies.get("token");
@@ -97,44 +97,37 @@ const AddStaff = ({selectedStaff, settoggleAddStaff, setAddStaffSuccess,getStaff
     const { name, value } = event.target;
     const newValue = name === "RoleId" ? parseInt(value, 10) : value;
 
-    setCustomerInfo({
-      ...customerInfo,
-      [name]: newValue,
+    setCustomerInfo((prevData) => {
+      const updatedData = {
+        ...prevData,
+        [name]: newValue,
+      };
+    
+      if (name === "Password" || name === "ConfirmPassword") {
+        // Check if the passwords match
+        const isMatching =
+          name === "Password"
+            ? value === updatedData.ConfirmPassword
+            : updatedData.Password === value;
+    
+        setPasswordMatch(!isMatching);
+      }
+    
+      return updatedData; // Return the updated state
     });
 
-    console.log("customer info", {
-      ...customerInfo,
-      [name]: newValue,
-    });
+    console.log("customer info", customerInfo);
     setAlert(false)
 
     validateForm();
   };
 
-  const validatePasswords = () => {
-    if (password && confirmPassword && password === confirmPassword) {
-      setPasswordMismatch(false);
-    } else {
-      setPasswordMismatch(true);
-     
-    }
-  };
+ 
 
-  const handlePasswordChange = (event) => {
-    setPassword(event.target.value);
-    validateForm();
-    validatePasswords()
-  };
-
-  const handleConfirmPasswordChange = (event) => {
-    setConfirmPassword(event.target.value);
-    validateForm();
-    validatePasswords()
-  };
 
   useEffect(() => {
     validateForm(); // re-validate form when component mounts or updates
-  }, [customerInfo, password, confirmPassword]);
+  }, [customerInfo ]);
 
   const addStaff = async () => {
     try {
@@ -256,7 +249,7 @@ const AddStaff = ({selectedStaff, settoggleAddStaff, setAddStaffSuccess,getStaff
                 <input
                   type="password"
                   className="form-control"
-                  onChange={handlePasswordChange}
+                  onChange={handleCustomerInfo}
                   name="Password"
                   id="passwordInput"
                   placeholder="Password"
@@ -270,13 +263,15 @@ const AddStaff = ({selectedStaff, settoggleAddStaff, setAddStaffSuccess,getStaff
                 <input
                   type="password"
                   className="form-control"
-                  onChange={handleConfirmPasswordChange}
+                  onChange={handleCustomerInfo}
                   id="confirmPasswordInput"
+                  name="ConfirmPassword"
                   
                   placeholder="Confirm Password"
                   required
                 />
-                {passwordMismatch && (
+                {/* <div>{customerInfo.Password} {customerInfo.ConfirmPassword}</div> */}
+                {passwordMatch && (
         <div style={{ color: 'red' }}>
           Passwords do not match.
         </div>
@@ -320,7 +315,7 @@ const AddStaff = ({selectedStaff, settoggleAddStaff, setAddStaffSuccess,getStaff
               </div>
               <div className="col-xl-6" style={{ position: "relative" }}>
                 <label className="form-label">
-                  Adress<span className="text-danger">*</span>
+                  Address<span className="text-danger">*</span>
                 </label>
                 <input
                   type="text"
