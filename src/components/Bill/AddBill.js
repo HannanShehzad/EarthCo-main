@@ -113,6 +113,16 @@ const AddBill = ({ setshowContent }) => {
 
     
   };
+  const handleChange = (e) => {
+    // Extract the name and value from the event target
+    const { name, value } = e.target;
+
+    // Create a new copy of formData with the updated key-value pair
+    const updatedFormData = { ...formData, [name]: value };
+
+    // Update the formData state
+    setFormData(updatedFormData);
+  };
 
   useEffect(() => {
     fetchServiceLocations(formData.CustomerId);
@@ -337,12 +347,14 @@ const AddBill = ({ setshowContent }) => {
                         <label className="form-label">Vendor</label>
                         <select
                           id="inputState"
+                          name="Vendor"
                           className="default-select form-control wide"
+                          onChange={handleChange}
                         >
                           <option defaultValue>Crest DeVille</option>
-                          <option>Option 1</option>
-                          <option>Option 2</option>
-                          <option>Option 3</option>
+                          <option value={1}>Option 1</option>
+                          <option value={2}>Option 2</option>
+                          <option value={3}>Option 3</option>
                         </select>
                       </div>
                       <div className="col-md-12">
@@ -379,7 +391,16 @@ const AddBill = ({ setshowContent }) => {
                         </div>
                         <div className="mb-3 col-md-4">
                           <label className="form-label">Tags</label>
-                          <input type="text" className="form-control" />
+                          <select
+                          id="inputState"
+                          name="Tags"
+                          className="default-select form-control wide"
+                          onChange={handleChange}
+                        >
+                          <option defaultValue>Select tags</option>
+                          <option value={1}>Needs PO</option>
+                          <option value={2}>Pending Approval</option>                          
+                        </select>
                         </div>
                         <div className="mb-3 col-md-4">
                           <label className="form-label">Date</label>
@@ -387,7 +408,7 @@ const AddBill = ({ setshowContent }) => {
                             <div className="input-group-text">
                               <i className="fa fa-calendar "></i>
                             </div>
-                            <input type="date" className="form-control" />
+                            <input type="date" className="form-control" name="Date"  onChange={handleChange} />
                           </div>
                         </div>
                         <div className="mb-3 col-md-4">
@@ -396,19 +417,25 @@ const AddBill = ({ setshowContent }) => {
                             <div className="input-group-text">
                               <i className="fa fa-calendar "></i>
                             </div>
-                            <input type="date" className="form-control" />
+                            <input type="date" className="form-control" name="DueDate"  onChange={handleChange} />
                           </div>
                         </div>
                         <div className="mb-3 col-md-4">
                           <label className="form-label">Purchase Order</label>
                           <div className="input-group mb-2">
                             <div className="input-group-text">#</div>
-                            <input type="text" className="form-control" />
+                            <input
+                              type="text"
+                              name="PurchaseOrderNo"
+                              onChange={handleChange}
+                              className="form-control"
+                              placeholder="Leave blank to auto complete"
+                            />
                           </div>
                         </div>
                         <div className="mb-3 col-md-4">
                           <label className="form-label">Terms</label>
-                          <input type="text" className="form-control" />
+                          <input type="text" className="form-control" name="Terms"  onChange={handleChange} />
                         </div>
                       </div>
                     </div>
@@ -601,6 +628,7 @@ const AddBill = ({ setshowContent }) => {
                               className="form-txtarea form-control"
                               rows="2"
                               id="comment"
+                              name="Memo"  onChange={handleChange}
                             ></textarea>
                           </div>
                         </form>

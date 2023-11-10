@@ -108,6 +108,16 @@ export const AddPO = ({ setShowContent }) => {
 
     setFormData((prevData) => ({ ...prevData, [name]: value }));
   };
+  const handleChange = (e) => {
+    // Extract the name and value from the event target
+    const { name, value } = e.target;
+
+    // Create a new copy of formData with the updated key-value pair
+    const updatedFormData = { ...formData, [name]: value };
+
+    // Update the formData state
+    setFormData(updatedFormData);
+  };
 
   useEffect(() => {
     fetchServiceLocations(formData.CustomerId);
@@ -310,19 +320,21 @@ export const AddPO = ({ setShowContent }) => {
             </div>
             <div className="row">
               <div className="basic-form ">
-                <form>
+                <form onSubmit={(e) => {e.preventDefault()}}>
                   <div className="row">
                     <div className="mb-3 col-md-3">
                       <div className="col-md-12">
                         <label className="form-label">Vendor</label>
                         <select
                           id="inputState"
+                          name="Vendor"
                           className="default-select form-control wide"
+                          onChange={handleChange}
                         >
                           <option defaultValue>Crest DeVille</option>
-                          <option>Option 1</option>
-                          <option>Option 2</option>
-                          <option>Option 3</option>
+                          <option value={1}>Option 1</option>
+                          <option value={2}>Option 2</option>
+                          <option value={3}>Option 3</option>
                         </select>
                       </div>
                       <div className="col-md-12">
@@ -352,6 +364,8 @@ export const AddPO = ({ setShowContent }) => {
                             <div className="input-group-text">#</div>{" "}
                             <input
                               type="text"
+                              name="PurchaseOrderNo"
+                              onChange={handleChange}
                               className="form-control"
                               placeholder="Leave blank to auto complete"
                             />
@@ -359,7 +373,16 @@ export const AddPO = ({ setShowContent }) => {
                         </div>
                         <div className="mb-3 col-md-4">
                           <label className="form-label">Tags</label>
-                          <input type="text" className="form-control" />
+                          <select
+                          id="inputState"
+                          name="Tags"
+                          className="default-select form-control wide"
+                          onChange={handleChange}
+                        >
+                          <option defaultValue>Select tags</option>
+                          <option value={1}>Needs PO</option>
+                          <option value={2}>Pending Approval</option>                          
+                        </select>
                         </div>
                         <div className="mb-3 col-md-4">
                           <label className="form-label">Date</label>
@@ -367,7 +390,7 @@ export const AddPO = ({ setShowContent }) => {
                             <div className="input-group-text">
                               <i className="fa fa-calendar "></i>
                             </div>
-                            <input type="date" className="form-control" />
+                            <input type="date" className="form-control" name="Date"  onChange={handleChange} />
                           </div>
                         </div>
                         <div className="mb-3 col-md-4">
@@ -376,44 +399,43 @@ export const AddPO = ({ setShowContent }) => {
                             <div className="input-group-text">
                               <i className="fa fa-calendar "></i>
                             </div>
-                            <input type="date" className="form-control" />
+                            <input type="date" className="form-control" name="DueDate"  onChange={handleChange} />
                           </div>
                         </div>
                         <div className="mb-3 col-md-4">
                           <label className="form-label">Regional Manager</label>
                           <select
                             id="inputState"
+                            name="RegionalManager"
                             className="default-select form-control wide"
                           >
-                            <option defaultValue>RM 1</option>
-                            <option>RM 2</option>
-                            <option>RM 3</option>
+                            <option defaultValue>Select Regional Manager</option>
+                            <option value={1}>RM 1</option>
+                            <option value={2}>RM 2</option>
+                            <option value={3}>RM 3</option>
                           </select>
                         </div>
                         <div className="mb-3 col-md-4">
                           <label className="form-label">Terms</label>
-                          <input type="text" className="form-control" />
+                          <input type="text" className="form-control" name="Terms"  onChange={handleChange} />
                         </div>
                         <div className="mb-3 col-md-4">
                           <label className="form-label">Requested by</label>
-                          <input type="text" className="form-control" />
+                          <input type="text" className="form-control" name="Requested by"  onChange={handleChange} />
                         </div>
                         <div className="mb-3 col-md-4">
                           <label className="form-label">Status</label>
-                          <select className="default-select  form-control wide">
-                            <option value="Open">Open</option>
-                            <option value="Approved">Approved</option>
-                            <option value="Closed Billed">Closed Billed</option>
-                            <option value="Closed Not Approved">
-                              Closed Not Approved
-                            </option>
+                          <select className="default-select  form-control wide" name="Status"  onChange={handleChange}>
+                            <option value={null}>select</option>
+                            <option value="Open">Open</option>                            
+                            <option value="Closed">Closed</option>                            
                           </select>
                         </div>
                         <div className="mb-3 col-md-4">
                           <label className="form-label">Invoice Number</label>
                           <div className="input-group mb-2">
                             <div className="input-group-text">#</div>
-                            <input type="text" className="form-control" />
+                            <input type="text" className="form-control" name="InvoiceNo"  onChange={handleChange} />
                           </div>
                         </div>
                         <div className="mb-3 col-md-4">
@@ -422,14 +444,14 @@ export const AddPO = ({ setShowContent }) => {
                             <div className="input-group-text">
                               <i className="fa fa-map-pin "></i>
                             </div>
-                            <input type="text" className="form-control" />
+                            <input type="text" className="form-control" name="ShipTo"  onChange={handleChange}/>
                           </div>
                         </div>
                         <div className="mb-3 col-md-4">
                           <label className="form-label">Bill Number</label>
                           <div className="input-group mb-2">
                             <div className="input-group-text">#</div>
-                            <input type="text" className="form-control" />
+                            <input type="text" className="form-control" name="BillNo"  onChange={handleChange} />
                           </div>
                         </div>
                       </div>
@@ -679,30 +701,30 @@ export const AddPO = ({ setShowContent }) => {
                   <div className="row">
                     <div className="col-xl-12 col-lg-12">
                       <div className="basic-form">
-                        <form>
+                        
                           <h4 className="card-title">Memo Internal</h4>
                           <div className="mb-3">
                             <textarea
                               className="form-txtarea form-control"
                               rows="2"
                               id="comment"
+                              name="MemoInternal"  onChange={handleChange}
                             ></textarea>
                           </div>
-                        </form>
+                        
                       </div>
                     </div>
                     <div className="col-xl-12 col-lg-12">
-                      <div className="basic-form">
-                        <form>
+                      <div className="basic-form">                   
                           <h4 className="card-title">Message</h4>
                           <div className="mb-3">
                             <textarea
                               className="form-txtarea form-control"
                               rows="2"
                               id="comment"
+                              name="Message"  onChange={handleChange}
                             ></textarea>
-                          </div>
-                        </form>
+                          </div>                        
                       </div>
                     </div>
                     <div className="col-xl-12 col-lg-12">

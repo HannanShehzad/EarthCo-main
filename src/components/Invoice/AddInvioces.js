@@ -76,111 +76,120 @@ const AddInvioces = ({ setShowContent }) => {
       });
   };
 
-  const handleSLAutocompleteChange = (event, newValue) => {
-    const simulatedEvent = {
-      target: {
-        name: "ServiceLocationId",
-        value: newValue ? newValue.ServiceLocationId : "",
-      },
-    };
+  // const handleSLAutocompleteChange = (event, newValue) => {
+  //   const simulatedEvent = {
+  //     target: {
+  //       name: "ServiceLocationId",
+  //       value: newValue ? newValue.ServiceLocationId : "",
+  //     },
+  //   };
 
-    handleInputChange(simulatedEvent);
-  };
+  //   handleInputChange(simulatedEvent);
+  // };
 
-  const handleContactAutocompleteChange = (event, newValue) => {
-    const simulatedEvent = {
-      target: {
-        name: "ContactId",
-        value: newValue ? newValue.ContactId : "",
-      },
-    };
+  // const handleContactAutocompleteChange = (event, newValue) => {
+  //   const simulatedEvent = {
+  //     target: {
+  //       name: "ContactId",
+  //       value: newValue ? newValue.ContactId : "",
+  //     },
+  //   };
 
-    handleInputChange(simulatedEvent);
-  };
+  //   handleInputChange(simulatedEvent);
+  // };
 
-  const handleInputChange = (e, newValue) => {
+  // const handleInputChange = (e, newValue) => {
+  //   const { name, value } = e.target;
+
+  //   setSelectedCustomer(newValue);
+  //   setSelectedSL(newValue);
+
+  //   // Convert to number if the field is CustomerId, Qty, Rate, or EstimateStatusId
+
+  //   setFormData((prevData) => ({ ...prevData, [name]: value }));
+  // };
+
+  const handleChange = (e) => {
+    // Extract the name and value from the event target
     const { name, value } = e.target;
 
-    setSelectedCustomer(newValue);
-    setSelectedSL(newValue);
+    // Create a new copy of formData with the updated key-value pair
+    const updatedFormData = { ...formData, [name]: value };
 
-    // Convert to number if the field is CustomerId, Qty, Rate, or EstimateStatusId
-
-    setFormData((prevData) => ({ ...prevData, [name]: value }));
+    // Update the formData state
+    setFormData(updatedFormData);
   };
-
   useEffect(() => {
     fetchServiceLocations(formData.CustomerId);
     fetctContacts(formData.CustomerId);
     console.log("main payload isss", formData);
   }, [formData]);
 
-  // items 
+  // items
 
-   // items 
-   const [itemsList, setItemsList] = useState([]);
-   const [itemInput, setItemInput] = useState({
-     Name: "",
-     Qty: 1,
-     Description: "",
-     Rate: null,
-   });
-   const [searchText, setSearchText] = useState("");
-   const [searchResults, setSearchResults] = useState([]);
-   const [selectedItem, setSelectedItem] = useState(null);
-   const [showItem, setShowItem] = useState(true);
-   const inputRef = useRef(null);
-   const token = Cookies.get("token");
- 
-   useEffect(() => {
-     if (searchText) {
-       // Make an API request when the search text changes
-       const headers = {
-         Authorization: `Bearer ${token}`,
-       };
-       axios
-         .get(
-           `https://earthcoapi.yehtohoga.com/api/Item/GetSearchItemList?Search=${searchText}`,
-           { headers }
-         )
-         .then((response) => {
-           setSearchResults(response.data);
-         })
-         .catch((error) => {
-           console.error("Error fetching itemss data:", error);
-         });
-     } else {
-       setSearchResults([]); // Clear the search results when input is empty
-     }
-   }, [searchText]);
- 
-   const handleItemChange = (event) => {
-     setShowItem(true);
-     setSearchText(event.target.value);
- 
-     setSelectedItem(null); // Clear selected item when input changes
-   };
- 
-   const handleItemClick = (item) => {
-     setSelectedItem(item);
-     setSearchText(item.ItemName); // Set the input text to the selected item's name
-     setItemInput({
-       ...itemInput,
-       Name: item.ItemName,
-       Description: item.SaleDescription,
-       Rate: item.SalePrice,
-     });
-     setShowItem(false);
-     setSearchResults([]); // Clear the search results
- 
-     console.log("selected item is", itemInput);
-   };
- 
-   const deleteItem = (id) => {
-     const updatedItemsList = itemsList.filter((item) => item.id !== id);
-     setItemsList(updatedItemsList);
-   };
- 
+  // items
+  const [itemsList, setItemsList] = useState([]);
+  const [itemInput, setItemInput] = useState({
+    Name: "",
+    Qty: 1,
+    Description: "",
+    Rate: null,
+  });
+  const [searchText, setSearchText] = useState("");
+  const [searchResults, setSearchResults] = useState([]);
+  const [selectedItem, setSelectedItem] = useState(null);
+  const [showItem, setShowItem] = useState(true);
+  const inputRef = useRef(null);
+  const token = Cookies.get("token");
+
+  useEffect(() => {
+    if (searchText) {
+      // Make an API request when the search text changes
+      const headers = {
+        Authorization: `Bearer ${token}`,
+      };
+      axios
+        .get(
+          `https://earthcoapi.yehtohoga.com/api/Item/GetSearchItemList?Search=${searchText}`,
+          { headers }
+        )
+        .then((response) => {
+          setSearchResults(response.data);
+        })
+        .catch((error) => {
+          console.error("Error fetching itemss data:", error);
+        });
+    } else {
+      setSearchResults([]); // Clear the search results when input is empty
+    }
+  }, [searchText]);
+
+  const handleItemChange = (event) => {
+    setShowItem(true);
+    setSearchText(event.target.value);
+
+    setSelectedItem(null); // Clear selected item when input changes
+  };
+
+  const handleItemClick = (item) => {
+    setSelectedItem(item);
+    setSearchText(item.ItemName); // Set the input text to the selected item's name
+    setItemInput({
+      ...itemInput,
+      Name: item.ItemName,
+      Description: item.SaleDescription,
+      Rate: item.SalePrice,
+    });
+    setShowItem(false);
+    setSearchResults([]); // Clear the search results
+
+    console.log("selected item is", itemInput);
+  };
+
+  const deleteItem = (id) => {
+    const updatedItemsList = itemsList.filter((item) => item.id !== id);
+    setItemsList(updatedItemsList);
+  };
 
   return (
     <>
@@ -252,7 +261,7 @@ const AddInvioces = ({ setShowContent }) => {
                 )}
               </div>
 
-              <div className="col-xl-3">
+              {/* <div className="col-xl-3">
                 <label className="form-label">Service location</label>
                 <Autocomplete
                   id="inputState19"
@@ -308,8 +317,28 @@ const AddInvioces = ({ setShowContent }) => {
                   )}
                   aria-label="Contact select"
                 />
+              </div> */}
+              <div className="col-xl-3">
+                <div className="c-details">
+                  <ul>
+                    <li className="d-flex">
+                      <span>
+                        <b>Email:</b> email@gmail.com
+                      </span>
+                    </li>
+                    <li className="d-flex">
+                      <span>
+                        <b>Phone:</b> +92-000-999-8888
+                      </span>
+                    </li>
+                    <li className="d-flex">
+                      <span>
+                        <b>Address</b>
+                      </span>
+                    </li>
+                  </ul>
+                </div>
               </div>
-
               <div className="col-xl-3">
                 <div className="c-details">
                   <ul>
@@ -322,48 +351,6 @@ const AddInvioces = ({ setShowContent }) => {
                   </ul>
                 </div>
               </div>
-
-              <div className="col-xl-3">
-                <div className="c-details">
-                  <ul>
-                    <li className="d-flex">
-                      <span>
-                        <b>Email:</b> email@gmail.com
-                      </span>
-                    </li>
-                    
-                  </ul>
-                </div>
-              </div>
-
-              
-              <div className="col-xl-3">
-                <div className="c-details">
-                  <ul>
-                    
-                    <li className="d-flex">
-                      <span>
-                        <b>Phone:</b> +92-000-999-8888
-                      </span>
-                    </li>
-                    
-                  </ul>
-                </div>
-              </div>
-
-              
-              <div className="col-xl-3">
-                <div className="c-details">
-                  <ul>                    
-                    <li className="d-flex">
-                      <span>
-                        <b>Address</b>
-                      </span>
-                    </li>
-                  </ul>
-                </div>
-              </div>
-
             </div>
           </div>
         </div>
@@ -432,6 +419,8 @@ const AddInvioces = ({ setShowContent }) => {
                             <input
                               type="text"
                               className="form-control"
+                              name="InvoiceNo"
+                              onChange={handleChange}
                               placeholder="Leave blank to auto complete"
                             />
                           </div>
@@ -443,6 +432,8 @@ const AddInvioces = ({ setShowContent }) => {
                             <input
                               type="text"
                               className="form-control"
+                              name="PoNumber"
+                              onChange={handleChange}
                               placeholder=""
                             />
                           </div>
@@ -453,7 +444,12 @@ const AddInvioces = ({ setShowContent }) => {
                             <div className="input-group-text">
                               <i className="fa fa-calendar "></i>
                             </div>
-                            <input type="date" className="form-control" />
+                            <input
+                              type="date"
+                              className="form-control"
+                              name="IssueDate"
+                              onChange={handleChange}
+                            />
                           </div>
                         </div>
                         <div className="mb-3 col-md-3">
@@ -462,7 +458,12 @@ const AddInvioces = ({ setShowContent }) => {
                             <div className="input-group-text">
                               <i className="fa fa-calendar "></i>
                             </div>
-                            <input type="date" className="form-control" />
+                            <input
+                              type="date"
+                              className="form-control"
+                              name="DueDate"
+                              onChange={handleChange}
+                            />
                           </div>
                         </div>
                       </div>
@@ -473,165 +474,172 @@ const AddInvioces = ({ setShowContent }) => {
                           <div className="itemtitleBar">
                             <h4>Items</h4>
                           </div>
-                          
+
                           <div className="table-responsive active-projects style-1 mt-2">
-                    <table id="empoloyees-tblwrapper" className="table">
-                      <thead>
-                        <tr>
-                          <th>Name</th>
-                          <th>Description</th>
-                          <th>Rate</th>
-                          <th>Qty / Duration</th>
-                          <th>Tax</th>
-                          <th>Amount</th>
-                          <th>Action</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {
-                          itemsList && itemsList.length > 0 ? (
-                            itemsList.map((item, index) => (
-                              <tr key={item.id || index}>
-                                {" "}
-                                {/* Make sure item has a unique 'id' or use index as a fallback */}
-                                <td>{item.Name}</td>
-                                <td>{item.Description}</td>
-                                <td>{item.Rate}</td>
-                                <td>{item.Qty}</td>
-                                <td></td>
-                                <td>{item.Rate * item.Qty}</td>
-                                <td>
-                                  <div className="badgeBox">
-                                    <span
-                                      className="actionBadge badge-danger light border-0 badgebox-size"
+                            <table id="empoloyees-tblwrapper" className="table">
+                              <thead>
+                                <tr>
+                                  <th>Name</th>
+                                  <th>Description</th>
+                                  <th>Rate</th>
+                                  <th>Qty / Duration</th>
+                                  <th>Tax</th>
+                                  <th>Amount</th>
+                                  <th>Action</th>
+                                </tr>
+                              </thead>
+                              <tbody>
+                                {
+                                  itemsList && itemsList.length > 0 ? (
+                                    itemsList.map((item, index) => (
+                                      <tr key={item.id || index}>
+                                        {" "}
+                                        {/* Make sure item has a unique 'id' or use index as a fallback */}
+                                        <td>{item.Name}</td>
+                                        <td>{item.Description}</td>
+                                        <td>{item.Rate}</td>
+                                        <td>{item.Qty}</td>
+                                        <td></td>
+                                        <td>{item.Rate * item.Qty}</td>
+                                        <td>
+                                          <div className="badgeBox">
+                                            <span
+                                              className="actionBadge badge-danger light border-0 badgebox-size"
+                                              onClick={() => {
+                                                deleteItem(item.id);
+                                              }}
+                                            >
+                                              <span className="material-symbols-outlined badgebox-size">
+                                                delete
+                                              </span>
+                                            </span>
+                                          </div>
+                                        </td>
+                                      </tr>
+                                    ))
+                                  ) : (
+                                    <tr>
+                                      <td colSpan="8">No items available</td>
+                                    </tr>
+                                  ) /* Add a null check or alternative content if formData.tblEstimateItems is empty */
+                                }
+
+                                <tr>
+                                  <td>
+                                    <>
+                                      <input
+                                        type="text"
+                                        placeholder="Search for items..."
+                                        className="form-control form-control-sm"
+                                        name="Name"
+                                        value={searchText}
+                                        onChange={handleItemChange}
+                                        ref={inputRef}
+                                      />
+                                      {searchResults.length > 0 && (
+                                        <ul
+                                          style={{ top: "13.1" }}
+                                          className="items-search-results-container"
+                                        >
+                                          {searchResults.map((item) => (
+                                            <li
+                                              style={{ cursor: "pointer" }}
+                                              key={item.ItemId}
+                                              onClick={() =>
+                                                handleItemClick(item)
+                                              }
+                                            >
+                                              {showItem && item.ItemName}
+                                            </li>
+                                          ))}
+                                        </ul>
+                                      )}
+                                    </>
+                                  </td>
+                                  <td>
+                                    <textarea
+                                      name="Description"
+                                      className="form-txtarea form-control form-control-sm"
+                                      value={
+                                        selectedItem?.SaleDescription || " "
+                                      }
+                                      rows="1"
+                                      disabled
+                                    ></textarea>
+                                  </td>
+
+                                  <td>
+                                    <div className="col-sm-9">
+                                      <input
+                                        name="Rate"
+                                        value={
+                                          selectedItem?.SalePrice ||
+                                          itemInput.Rate ||
+                                          " "
+                                        }
+                                        className="form-control form-control-sm"
+                                        placeholder="Rate"
+                                        disabled
+                                      />
+                                    </div>
+                                  </td>
+
+                                  <td>
+                                    <input
+                                      type="number"
+                                      name="Qty"
+                                      value={itemInput.Qty}
+                                      onChange={(e) =>
+                                        setItemInput({
+                                          ...itemInput,
+                                          Qty: Number(e.target.value),
+                                        })
+                                      }
+                                      className="form-control form-control-sm"
+                                      placeholder="Quantity"
+                                    />
+                                  </td>
+                                  <td>
+                                    <input
+                                      type="number"
+                                      name="Tax"
+                                      className="form-control form-control-sm"
+                                      placeholder="Tax"
+                                      disabled
+                                    />
+                                  </td>
+                                  <td>
+                                    <h5 style={{ margin: "0" }}>
+                                      {itemInput.Rate * itemInput.Qty}
+                                    </h5>
+                                  </td>
+                                  <td>
+                                    <button
+                                      className="btn btn-primary btn-sm"
                                       onClick={() => {
-                                        deleteItem(item.id);
+                                        // Adding the new item to the itemsList
+                                        setItemsList((prevItems) => [
+                                          ...prevItems,
+                                          { ...itemInput, id: Date.now() }, // Ensure each item has a unique 'id'
+                                        ]);
+                                        // Reset the input fields
+                                        setSearchText("");
+                                        setSelectedItem(null);
+                                        setItemInput({
+                                          Name: "",
+                                          Qty: 1,
+                                          Description: "",
+                                          Rate: null,
+                                        });
                                       }}
                                     >
-                                      <span className="material-symbols-outlined badgebox-size">
-                                        delete
-                                      </span>
-                                    </span>
-                                  </div>
-                                </td>
-                              </tr>
-                            ))
-                          ) : (
-                            <tr>
-                              <td colSpan="8">No items available</td>
-                            </tr>
-                          ) /* Add a null check or alternative content if formData.tblEstimateItems is empty */
-                        }
-
-                        <tr>
-                          <td>
-                            <>
-                              <input
-                                type="text"
-                                placeholder="Search for items..."
-                                className="form-control form-control-sm"
-                                name="Name"
-                                value={searchText}
-                                onChange={handleItemChange}
-                                ref={inputRef}
-                              />
-                              {searchResults.length > 0 && (
-                                <ul style={{top : "13.1"}} className="items-search-results-container">
-                                  {searchResults.map((item) => (
-                                    <li
-                                      style={{ cursor: "pointer" }}
-                                      key={item.ItemId}
-                                      onClick={() => handleItemClick(item)}
-                                    >
-                                      {showItem && item.ItemName}
-                                    </li>
-                                  ))}
-                                </ul>
-                              )}
-                            </>
-                          </td>
-                          <td>
-                            <textarea
-                              name="Description"
-                              className="form-txtarea form-control form-control-sm"
-                              value={selectedItem?.SaleDescription || " "}
-                              rows="1"
-                              disabled
-                            ></textarea>
-                          </td>
-
-                          <td>
-                            <div className="col-sm-9">
-                              <input
-                                name="Rate"
-                                value={
-                                  selectedItem?.SalePrice ||
-                                  itemInput.Rate ||
-                                  " "
-                                }
-                                className="form-control form-control-sm"
-                                placeholder="Rate"
-                                disabled
-                              />
-                            </div>
-                          </td>
-
-                          <td>
-                            <input
-                              type="number"
-                              name="Qty"
-                              value={itemInput.Qty}
-                              onChange={(e) =>
-                                setItemInput({
-                                  ...itemInput,
-                                  Qty: Number(e.target.value),
-                                })
-                              }
-                              className="form-control form-control-sm"
-                              placeholder="Quantity"
-                            />
-                          </td>
-                          <td>
-                            <input
-                              type="number"
-                              name="Tax"
-                              className="form-control form-control-sm"
-                              placeholder="Tax"
-                              disabled
-                            />
-                          </td>
-                          <td>
-                            <h5 style={{ margin: "0" }}>
-                              {itemInput.Rate * itemInput.Qty}
-                            </h5>
-                          </td>
-                          <td>
-                            <button
-                              className="btn btn-primary btn-sm"
-                              onClick={() => {
-                                // Adding the new item to the itemsList
-                                setItemsList((prevItems) => [
-                                  ...prevItems,
-                                  { ...itemInput, id: Date.now() }, // Ensure each item has a unique 'id'
-                                ]);
-                                // Reset the input fields
-                                setSearchText("");
-                                setSelectedItem(null);
-                                setItemInput({
-                                  Name: "",
-                                  Qty: 1,
-                                  Description: "",
-                                  Rate: null,
-                                });
-                              }}
-                            >
-                              Add
-                            </button>
-                          </td>
-                        </tr>
-                      </tbody>
-                    </table>
-                  </div>
+                                      Add
+                                    </button>
+                                  </td>
+                                </tr>
+                              </tbody>
+                            </table>
+                          </div>
                         </div>
                       </div>
                     </div>
@@ -651,6 +659,8 @@ const AddInvioces = ({ setShowContent }) => {
                                       className="form-txtarea form-control"
                                       rows="2"
                                       id="comment"
+                                      name="CustomerMessage"
+                                      onChange={handleChange}
                                     ></textarea>
                                   </div>
                                 </form>
@@ -665,6 +675,8 @@ const AddInvioces = ({ setShowContent }) => {
                                       className="form-txtarea form-control"
                                       rows="2"
                                       id="comment"
+                                      name="PriveteNotes"
+                                      onChange={handleChange}
                                     ></textarea>
                                   </div>
                                 </form>
@@ -736,16 +748,35 @@ const AddInvioces = ({ setShowContent }) => {
                               </tr>
                               <tr>
                                 <td className="left">
-                                  <strong>Discount (20%)</strong>
+                                  <label className="form-label">Taxes</label>
+                                  <div className="input-group">
+                                    <input
+                                      type="text"
+                                      className="form-control form-control-sm"
+                                      name="Taxes"
+                                      placeholder=""
+                                    />
+                                  </div>
                                 </td>
-                                <td className="right">$1,699,40</td>
+                                <td className="right">$8.497,00</td>
                               </tr>
                               <tr>
                                 <td className="left">
-                                  <strong>VAT (10%)</strong>
+                                  <label className="form-label">
+                                    Discount(%)
+                                  </label>
+                                  <div className="input-group">
+                                    <input
+                                      type="text"
+                                      className="form-control form-control-sm"
+                                      name="Discount"
+                                      placeholder=""
+                                    />
+                                  </div>
                                 </td>
-                                <td className="right">$679,76</td>
+                                <td className="right">$1,699,40</td>
                               </tr>
+                              
                               <tr>
                                 <td className="left">
                                   <strong>Total</strong>
@@ -755,6 +786,40 @@ const AddInvioces = ({ setShowContent }) => {
                                   <br />
                                   <strong>0.15050000 BTC</strong>
                                 </td>
+                              </tr>
+                              <tr>
+                                <td className="left">
+                                  Payment/Credit
+                                </td>
+                                <td className="right">$00</td>
+                              </tr>
+                              <tr>
+                                <td className="left">
+                                  <strong>Balance due</strong>
+                                </td>
+                                <td className="right">
+                                  <strong>$7.477,36</strong>
+                                  <br />
+                                  <strong>0.15050000 BTC</strong>
+                                </td>
+                              </tr>
+                              <tr>
+                                <td className="left">
+                                  Total Expenses
+                                </td>
+                                <td className="right">$00</td>
+                              </tr>
+                              <tr>
+                                <td className="left">
+                                 Total Profit(%)
+                                </td>
+                                <td className="right">$00</td>
+                              </tr>
+                              <tr>
+                                <td className="left">
+                                  Profit Margin(%)
+                                </td>
+                                <td className="right">$00</td>
                               </tr>
                             </tbody>
                           </table>
