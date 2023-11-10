@@ -44,7 +44,7 @@ const theme = createTheme({
   },
 });
 
-const ServiceRequestTR = ({ serviceRequest = [], setShowCards, fetchServiceRequest }) => {
+const ServiceRequestTR = ({headers, serviceRequest = [], setShowCards, fetchServiceRequest }) => {
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(10);
   const [sorting, setSorting] = useState({ field: "", order: "" });
@@ -71,9 +71,7 @@ const ServiceRequestTR = ({ serviceRequest = [], setShowCards, fetchServiceReque
   //
 
   const deleteServiceRequest = async (id) => {
-    const headers = {
-      Authorization: `Bearer ${token}`,
-    };
+    
     try {
       const response = await axios.get(
         `https://earthcoapi.yehtohoga.com/api/ServiceRequest/DeleteServiceRequest?id=${id}`,{headers}        
@@ -318,6 +316,7 @@ const ServiceRequestTR = ({ serviceRequest = [], setShowCards, fetchServiceReque
         </ThemeProvider>
       ) : (
         <UpdateSRForm
+        headers={headers}
           serviceRequestId={serviceRequestId}
           setShowContent={setShowContent}
           setShowCards={setShowCards}

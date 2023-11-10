@@ -10,6 +10,7 @@ import Autocomplete from "@mui/material/Autocomplete";
 import Cookies from "js-cookie";
 
 const UpdateEstimateForm = ({
+  headers,
   setShowContent,
   estimateId,
   setShowStatusCards,
@@ -46,7 +47,7 @@ const UpdateEstimateForm = ({
       return;
     }
     const response = await axios.get(
-      `https://earthcoapi.yehtohoga.com/api/Estimate/GetEstimate?id=${estimateId}`
+      `https://earthcoapi.yehtohoga.com/api/Estimate/GetEstimate?id=${estimateId}`,{headers}
     );
     try {
       setEstimates(response.data);
@@ -80,7 +81,7 @@ const UpdateEstimateForm = ({
   const fetchServiceLocations = async (id) => {
     axios
       .get(
-        `https://earthcoapi.yehtohoga.com/api/Customer/GetCustomerServiceLocation?id=${id}`
+        `https://earthcoapi.yehtohoga.com/api/Customer/GetCustomerServiceLocation?id=${id}`,{headers}
       )
       .then((res) => {
         setSLList(res.data);
@@ -95,7 +96,7 @@ const UpdateEstimateForm = ({
   const fetctContacts = async (id) => {
     axios
       .get(
-        `https://earthcoapi.yehtohoga.com/api/Customer/GetCustomerContact?id=${id}`
+        `https://earthcoapi.yehtohoga.com/api/Customer/GetCustomerContact?id=${id}`,{headers}
       )
       .then((res) => {
         console.log("contacts data isss", res.data);
@@ -118,7 +119,7 @@ const UpdateEstimateForm = ({
     try {
       setShowCustomersList(true); // Show the list when typing
       const res = await axios.get(
-        `https://earthcoapi.yehtohoga.com/api/Customer/GetSearchCustomersList?Search=${e.target.value}`
+        `https://earthcoapi.yehtohoga.com/api/Customer/GetSearchCustomersList?Search=${e.target.value}`,{headers}
       );
       console.log("customers search list", res.data);
       setCustomersList(res.data);
@@ -292,9 +293,7 @@ const UpdateEstimateForm = ({
   useEffect(() => {
     if (searchText) {
       // Make an API request when the search text changes
-      const headers = {
-        Authorization: `Bearer ${token}`,
-      };
+      
       axios
         .get(
           `https://earthcoapi.yehtohoga.com/api/Item/GetSearchItemList?Search=${searchText}`,

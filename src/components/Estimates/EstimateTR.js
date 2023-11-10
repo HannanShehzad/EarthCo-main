@@ -42,7 +42,7 @@ const theme = createTheme({
   },
 });
 
-const EstimateTR = ({ estimates , setShowStatusCards }) => {
+const EstimateTR = ({ headers, estimates , setShowStatusCards }) => {
   const [order, setOrder] = useState("asc");
   const [orderBy, setOrderBy] = useState("EstimateId");
   const [filtering, setFiltering] = useState("");
@@ -326,6 +326,7 @@ const EstimateTR = ({ estimates , setShowStatusCards }) => {
         </ThemeProvider>
       ) : (
         <UpdateEstimateForm
+        headers={headers}
           setShowContent={setShowContent}
           estimateId={selectedItem}
           setShowStatusCards={setShowStatusCards}

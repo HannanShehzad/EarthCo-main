@@ -10,6 +10,7 @@ import Autocomplete from "@mui/material/Autocomplete";
 import Alert from "@mui/material/Alert";
 
 const UpdateSRForm = ({
+  headers,
   serviceRequestId,
   setShowContent,
   setShowCards,
@@ -25,10 +26,9 @@ const UpdateSRForm = ({
     ServiceRequestData: {
       ServiceRequestId: serviceRequestId,
 
-      CustomerId: 0,
-      ServiceLocation: "",
+      CustomerId: 0,      
       ServiceRequestNumber: "",
-      Contact: "",
+      
       DueDate: "",
       SRTypeId: 0,
       SRStatusId: 0,
@@ -64,7 +64,7 @@ const UpdateSRForm = ({
   const fetchServiceLocations = async (id) => {
     axios
       .get(
-        `https://earthcoapi.yehtohoga.com/api/Customer/GetCustomerServiceLocation?id=${id}`
+        `https://earthcoapi.yehtohoga.com/api/Customer/GetCustomerServiceLocation?id=${id}`,{headers}
       )
       .then((res) => {
         setSLList(res.data);
@@ -90,7 +90,7 @@ const UpdateSRForm = ({
   const fetctContacts = async (id) => {
     axios
       .get(
-        `https://earthcoapi.yehtohoga.com/api/Customer/GetCustomerContact?id=${id}`
+        `https://earthcoapi.yehtohoga.com/api/Customer/GetCustomerContact?id=${id}`,{headers}
       )
       .then((res) => {
         console.log("contacts data isss", res.data);
@@ -124,7 +124,7 @@ const UpdateSRForm = ({
   const fetchStaffList = async () => {
     try {
       const response = await axios.get(
-        `https://earthcoapi.yehtohoga.com/api/Staff/GetStaffList`
+        `https://earthcoapi.yehtohoga.com/api/Staff/GetStaffList`,{headers}
       );
       setStaffData(response.data);
 
@@ -134,10 +134,7 @@ const UpdateSRForm = ({
     }
   };
 
-  const fetchSRTypes = async () => {
-    const headers = {
-      Authorization: `Bearer ${token}`,
-    };
+  const fetchSRTypes = async () => {    
     try {
       const res = await axios.get(
         `https://earthcoapi.yehtohoga.com/api/ServiceRequest/GetServiceRequestTypes`,
@@ -160,7 +157,7 @@ const UpdateSRForm = ({
     try {
       setShowCustomersList(true); // Show the list when typing
       const res = await axios.get(
-        `https://earthcoapi.yehtohoga.com/api/Customer/GetSearchCustomersList?Search=${e.target.value}`
+        `https://earthcoapi.yehtohoga.com/api/Customer/GetSearchCustomersList?Search=${e.target.value}`,{headers}
       );
       console.log("customers search list", res.data);
       setCustomersList(res.data);
@@ -326,9 +323,7 @@ const UpdateSRForm = ({
       if (serviceRequestId === 0) {
         return;
       }
-      const headers = {
-        Authorization: `Bearer ${token}`,
-      };
+      
 
       const response = await axios.get(
         `https://earthcoapi.yehtohoga.com/api/ServiceRequest/GetServiceRequest?id=${serviceRequestId}`,
@@ -374,9 +369,7 @@ const UpdateSRForm = ({
   useEffect(() => {
     if (searchText) {
       // Make an API request when the search text changes
-      const headers = {
-        Authorization: `Bearer ${token}`,
-      };
+      
       axios
         .get(
           `https://earthcoapi.yehtohoga.com/api/Item/GetSearchItemList?Search=${searchText}`,
@@ -608,6 +601,8 @@ const UpdateSRForm = ({
                         size="lg"
                         className="bg-white"
                       >
+                        <option value={null}>select</option>
+
                         <option value={1}>Open</option>
                         <option value={2}>Closed</option>
                       </Form.Select>
@@ -738,14 +733,7 @@ const UpdateSRForm = ({
                             </>
                           </td>
                           <td>
-                            <textarea
-                              name="Description"
-                              className="form-txtarea form-control form-control-sm"
-                              value={selectedItem?.SaleDescription || " "}
-                              rows="1"
-                              id="comment"
-                              disabled
-                            ></textarea>
+                            <p>{selectedItem?.SaleDescription || " "}</p>
                           </td>
 
                           <td>
@@ -816,7 +804,9 @@ const UpdateSRForm = ({
                                   Description: "",
                                   Rate: 0,
                                 }); // Reset the modal input field
+                                console.log("table items are ",tblSRItems )
                               }}
+
                             >
                               Add
                             </button>
@@ -853,8 +843,7 @@ const UpdateSRForm = ({
                       <thead>
                         <tr>
                           <th>#</th>
-                          <th>File Name</th>
-                          <th>Last Modified Date</th>
+                          <th>File Name</th>                          
                           <th>Type</th>
                           <th>Size</th>
                           <th>Actions</th>
@@ -865,7 +854,7 @@ const UpdateSRForm = ({
                           <tr key={index}>
                             <td>{index + 1}</td>
                             <td>{file.FileName || file.name}</td>
-                            <td></td>
+                          
                             <td>{file.type || "N/A"}</td>
                             <td>{file.size} bytes</td>
                             <td>

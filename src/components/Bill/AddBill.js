@@ -8,6 +8,11 @@ import Cookies from "js-cookie";
 
 const AddBill = ({ setshowContent }) => {
 
+  const token = Cookies.get("token");
+  const headers = {
+    Authorization: `Bearer ${token}`,
+  };
+
   const [formData, setFormData] = useState({});
   const [customersList, setCustomersList] = useState([]);
   const [showCustomersList, setShowCustomersList] = useState(true);
@@ -27,7 +32,7 @@ const AddBill = ({ setshowContent }) => {
     try {
       setShowCustomersList(true); // Show the list when typing
       const res = await axios.get(
-        `https://earthcoapi.yehtohoga.com/api/Customer/GetSearchCustomersList?Search=${e.target.value}`
+        `https://earthcoapi.yehtohoga.com/api/Customer/GetSearchCustomersList?Search=${e.target.value}`,{headers}
       );
       console.log("customers search list", res.data);
       setCustomersList(res.data);
@@ -48,7 +53,7 @@ const AddBill = ({ setshowContent }) => {
     }
     axios
       .get(
-        `https://earthcoapi.yehtohoga.com/api/Customer/GetCustomerServiceLocation?id=${id}`
+        `https://earthcoapi.yehtohoga.com/api/Customer/GetCustomerServiceLocation?id=${id}`,{headers}
       )
       .then((res) => {
         setSLList(res.data);
@@ -66,7 +71,7 @@ const AddBill = ({ setshowContent }) => {
     }
     axios
       .get(
-        `https://earthcoapi.yehtohoga.com/api/Customer/GetCustomerContact?id=${id}`
+        `https://earthcoapi.yehtohoga.com/api/Customer/GetCustomerContact?id=${id}`,{headers}
       )
       .then((res) => {
         console.log("contacts data isss", res.data);
@@ -143,14 +148,12 @@ const AddBill = ({ setshowContent }) => {
   const [selectedItem, setSelectedItem] = useState(null);
   const [showItem, setShowItem] = useState(true);
   const inputRef = useRef(null);
-  const token = Cookies.get("token");
+  
 
   useEffect(() => {
     if (searchText) {
       // Make an API request when the search text changes
-      const headers = {
-        Authorization: `Bearer ${token}`,
-      };
+      
       axios
         .get(
           `https://earthcoapi.yehtohoga.com/api/Item/GetSearchItemList?Search=${searchText}`,

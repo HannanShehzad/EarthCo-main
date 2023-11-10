@@ -12,9 +12,15 @@ import "datatables.net";
 import { Autocomplete, TextField } from "@mui/material";
 import StatusCards from "./StatusCards";
 import CircularProgress from "@mui/material/CircularProgress";
+import Cookies from "js-cookie";
+
 
 
 const Estimates = () => {
+  const token = Cookies.get("token");
+  const headers = {
+    Authorization: `Bearer ${token}`,
+  };
   const activeRef = useRef(null);
 
   // const { estimates, setSingleObj } = useContext(DataContext);
@@ -41,7 +47,7 @@ const Estimates = () => {
     const getEstimate = async () => {
       try {
         const response = await axios.get(
-          "https://earthcoapi.yehtohoga.com/api/Estimate/GetEstimateList"
+          "https://earthcoapi.yehtohoga.com/api/Estimate/GetEstimateList",{headers}
         );
         // console.log("estimate response is", response.data);
         setEstimates(response.data);
@@ -163,7 +169,7 @@ const Estimates = () => {
               ) : (
                 <div>
                  
-                    <EstimateTR estimates={estimates} setShowStatusCards={setShowStatusCards} />
+                    <EstimateTR headers={headers} estimates={estimates} setShowStatusCards={setShowStatusCards} />
                  
                 </div>
               )}
