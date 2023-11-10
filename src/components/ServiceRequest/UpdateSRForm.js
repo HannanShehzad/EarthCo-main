@@ -967,7 +967,7 @@ const UpdateSRForm = ({
                 </div>
               </div>
             </div>
-            ;
+        
           </div>
 
           <div className="mb-2 row text-end">
