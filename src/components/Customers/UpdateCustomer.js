@@ -14,6 +14,8 @@ import {
   Button, 
 } from "@mui/material";
 
+
+
 function CustomTabPanel(props) {
   const { children, value, index, ...other } = props;
 
@@ -48,6 +50,7 @@ function a11yProps(index) {
 }
 
 const UpdateCustomer = ({
+  headers,
   selectedItem,
   setShowContent,
   setCustomerAddSuccess,
@@ -109,9 +112,7 @@ const UpdateCustomer = ({
       const response = await axios.get(
         `https://earthcoapi.yehtohoga.com/api/Customer/GetCustomer?id=${selectedItem}`,
         {
-          headers: {
-            "Content-Type": "application/json",
-          },
+          headers
         }
       );
 
@@ -119,9 +120,9 @@ const UpdateCustomer = ({
       console.log("Customer zzzzzzzz:", response.data);
       setSelectedCompany(response.data);
       setAllowLogin(response.data.isLoginAllow);
-      setCompanyData(response.data);
-      setContactDataList(response.data.tblContacts);
-      setSlForm(response.data.tblServiceLocations);
+      setCompanyData(response.data.Data);
+      setContactDataList(response.data.ContactData);
+      setSlForm(response.data.ServiceLocationData);
     } catch (error) {
       console.error("There was an error updating the customer:", error);
     }
@@ -163,7 +164,7 @@ const UpdateCustomer = ({
   const getCustomerType = async () => {
     try {
       const response = await axios.get(
-        `https://earthcoapi.yehtohoga.com/api/Customer/GetCustomerTypes`
+        `https://earthcoapi.yehtohoga.com/api/Customer/GetCustomerTypes`,{headers}
       );
       console.log("getCustomerType", response.data);
       setCustomerType(response.data);
@@ -179,9 +180,7 @@ const UpdateCustomer = ({
         "https://earthcoapi.yehtohoga.com/api/Customer/AddCustomer",
         companyData,
         {
-          headers: {
-            "Content-Type": "application/json",
-          },
+          headers
         }
       );
 
@@ -210,6 +209,7 @@ const UpdateCustomer = ({
       const updatedFormData = {
         ...prevFormData,
         [name]: value,
+        isLoginAllow: allowLogin,
       };
 
       // Additional checks for the username and password fields
@@ -284,7 +284,7 @@ const UpdateCustomer = ({
     try {
       const response = await axios.post(
         "https://earthcoapi.yehtohoga.com/api/Customer/AddContact",
-        contactData
+        contactData,{headers}
       );
       console.log("successful contact api", response.data.Id);
 
@@ -310,7 +310,7 @@ const UpdateCustomer = ({
   const delContact = async (id) => {
     try {
       const response = await axios.get(
-        `https://earthcoapi.yehtohoga.com/api/Customer/DeleteContact?id=${id}`
+        `https://earthcoapi.yehtohoga.com/api/Customer/DeleteContact?id=${id}`,{headers}
       );
 
       const updatedContacts = contactDataList.filter(
@@ -385,7 +385,7 @@ const UpdateCustomer = ({
     try {
       const response = await axios.post(
         `https://earthcoapi.yehtohoga.com/api/Customer/AddServiceLocation`,
-        serviceLocations
+        serviceLocations,{headers}
       );
 
       // Assuming that the response data has an ID that you want to append
@@ -425,7 +425,7 @@ const UpdateCustomer = ({
     
     try {
       const response = await axios.get(
-        `https://earthcoapi.yehtohoga.com/api/Customer/DeleteServiceLocation?id=${serviceLocationId}`
+        `https://earthcoapi.yehtohoga.com/api/Customer/DeleteServiceLocation?id=${serviceLocationId}`,{headers}
       );
       const updatedSlForm = slForm.filter(
         (sl) => sl.ServiceLocationId !== serviceLocationId
@@ -510,7 +510,7 @@ const UpdateCustomer = ({
                       type="text"
                       className="form-control form-control-sm"
                       name="CompanyName"
-                      value={companyData.CompanyName}
+                      value={companyData?.CompanyName || ""}
                       onChange={handleCompanyChange}
                       placeholder="Company Name"
                       required

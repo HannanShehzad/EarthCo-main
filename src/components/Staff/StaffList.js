@@ -5,14 +5,20 @@ import { Link } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { Create, Delete, Update } from "@mui/icons-material";
 import AddStaff from "./AddStaff";
-import Alert from '@mui/material/Alert';
+import Alert from "@mui/material/Alert";
 import CircularProgress from "@mui/material/CircularProgress";
+import Cookies from "js-cookie";
 
 const StaffList = () => {
+  const token = Cookies.get("token");
+  const headers = {
+    Authorization: `Bearer ${token}`,
+  };
+
   const [staffData, setStaffData] = useState([]);
   const [toggleAddStaff, settoggleAddStaff] = useState(true);
-  const [selectedStaff, setSelectedStaff] = useState(0)
-  const [addStaffSuccess, setAddStaffSuccess] = useState(false)
+  const [selectedStaff, setSelectedStaff] = useState(0);
+  const [addStaffSuccess, setAddStaffSuccess] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
 
   const icon = (
@@ -45,7 +51,8 @@ const StaffList = () => {
   const getStaffList = async () => {
     try {
       const response = await axios.get(
-        `https://earthcoapi.yehtohoga.com/api/Staff/GetStaffList`
+        `https://earthcoapi.yehtohoga.com/api/Staff/GetStaffList`,
+        { headers }
       );
       setStaffData(response.data);
       if (response.data != null) {
@@ -64,7 +71,8 @@ const StaffList = () => {
   const deleteStaff = async (id) => {
     try {
       const response = await axios.get(
-        `https://earthcoapi.yehtohoga.com/api/Staff/DeleteStaff?id=${id}`
+        `https://earthcoapi.yehtohoga.com/api/Staff/DeleteStaff?id=${id}`,
+        { headers }
       );
       console.log("staff deteted successfully");
       window.location.reload();
@@ -79,86 +87,88 @@ const StaffList = () => {
         <>
           <TitleBar icon={icon} title="Staff Management" />
           {isLoading ? (
-                  <div className="center-loader">
-                    <CircularProgress style={{ color: "#789a3d" }} />
-                  </div>
-                ) : (<div className="container-fluid">
-                <div className="row">
-                  <div className="col-xl-12">
-                    <div className="card">
-                      <div className="card-body">
-                      {addStaffSuccess && <Alert severity="success">This is a success alert — check it out!</Alert>}
-                        <div className="table-responsive active-projects style-1">
-                          <div className="tbl-caption mb-3">
-                            <h4 className="heading mb-0">Staff</h4>
-    
-                            
-    
-                            <div>
-                              <button
-                                className="btn btn-primary btn-sm"
-                                role="button"
-                                onClick={() => {
-                                    setSelectedStaff(0)
-                                  settoggleAddStaff(false);
-    
-                                }}
-                              >
-                                + Add Staff
-                              </button>
-                            </div>
+            <div className="center-loader">
+              <CircularProgress style={{ color: "#789a3d" }} />
+            </div>
+          ) : (
+            <div className="container-fluid">
+              <div className="row">
+                <div className="col-xl-12">
+                  <div className="card">
+                    <div className="card-body">
+                      {addStaffSuccess && (
+                        <Alert severity="success">
+                          This is a success alert — check it out!
+                        </Alert>
+                      )}
+                      <div className="table-responsive active-projects style-1">
+                        <div className="tbl-caption mb-3">
+                          <h4 className="heading mb-0">Staff</h4>
+
+                          <div>
+                            <button
+                              className="btn btn-primary btn-sm"
+                              role="button"
+                              onClick={() => {
+                                setSelectedStaff(0);
+                                settoggleAddStaff(false);
+                              }}
+                            >
+                              + Add Staff
+                            </button>
                           </div>
-                          <table id="customerTbl" className="table">
-                            <thead>
-                              <tr>
-                                <th>#</th>
-                                <th>First Name </th>
-                                <th>Last Name</th>
-                                <th>User Name</th>
-                                <th>Role </th>
-                                <th>Actions</th>
-                              </tr>
-                            </thead>
-                            <tbody>
-                              {staffData.map((staff) => {
-                                return (
-                                  <tr key={staff.UserId}>
-                                    <td>{staff.UserId}</td>
-                                    <td>{staff.FirstName}</td>
-                                    <td>{staff.LastName}</td>
-                                    <td>{staff.Email}</td>
-                                    <td>{staff.Role}</td>
-                                    <td>
-                                      {" "}
-                                      <Create
-                                        className="custom-create-icon"
-                                        onClick={() => {
-                                          settoggleAddStaff(false);
-                                          setSelectedStaff(staff.UserId)
-                                        }}
-                                      ></Create>{" "}
-                                      <Delete
-                                        className="custom-delete-icon"
-                                        color="error"
-                                        onClick={() => {
-                                          deleteStaff(staff.UserId);
-                                        }}
-                                      ></Delete>
-                                    </td>
-                                  </tr>
-                                );
-                              })}
-                            </tbody>
-                          </table>
                         </div>
+                        <table id="customerTbl" className="table">
+                          <thead>
+                            <tr>
+                              <th>#</th>
+                              <th>First Name </th>
+                              <th>Last Name</th>
+                              <th>User Name</th>
+                              <th>Role </th>
+                              <th>Actions</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {staffData.map((staff) => {
+                              return (
+                                <tr key={staff.UserId}>
+                                  <td>{staff.UserId}</td>
+                                  <td>{staff.FirstName}</td>
+                                  <td>{staff.LastName}</td>
+                                  <td>{staff.Email}</td>
+                                  <td>{staff.Role}</td>
+                                  <td>
+                                    {" "}
+                                    <Create
+                                      className="custom-create-icon"
+                                      onClick={() => {
+                                        settoggleAddStaff(false);
+                                        setSelectedStaff(staff.UserId);
+                                      }}
+                                    ></Create>{" "}
+                                    <Delete
+                                      className="custom-delete-icon"
+                                      color="error"
+                                      onClick={() => {
+                                        deleteStaff(staff.UserId);
+                                      }}
+                                    ></Delete>
+                                  </td>
+                                </tr>
+                              );
+                            })}
+                          </tbody>
+                        </table>
                       </div>
                     </div>
                   </div>
                 </div>
-    
-                {/* #modal */}
-    
-                {/* <div className="modal fade" id="deleteConfirm" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+              </div>
+
+              {/* #modal */}
+
+              {/* <div className="modal fade" id="deleteConfirm" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
                     <div className="modal-dialog modal-dialog-centered" role="document">
                         <div className="modal-content">
                             <div className="modal-body">
@@ -171,13 +181,17 @@ const StaffList = () => {
                         </div>
                     </div>
                 </div> */}
-              </div>)}
-
-
-          
+            </div>
+          )}
         </>
       ) : (
-        <AddStaff selectedStaff={selectedStaff} settoggleAddStaff={settoggleAddStaff} setAddStaffSuccess={setAddStaffSuccess} getStaffList={getStaffList} />
+        <AddStaff
+        headers={headers}
+          selectedStaff={selectedStaff}
+          settoggleAddStaff={settoggleAddStaff}
+          setAddStaffSuccess={setAddStaffSuccess}
+          getStaffList={getStaffList}
+        />
       )}
     </>
   );

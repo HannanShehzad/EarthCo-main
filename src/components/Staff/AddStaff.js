@@ -4,11 +4,16 @@ import TitleBar from "../TitleBar";
 import { Form } from "react-bootstrap";
 import { NavLink } from "react-router-dom";
 import axios from "axios";
-import Cookies from "js-cookie";
+
 import Alert from "@mui/material/Alert";
 
-
-const AddStaff = ({selectedStaff, settoggleAddStaff, setAddStaffSuccess,getStaffList}) => {
+const AddStaff = ({
+  headers,
+  selectedStaff,
+  settoggleAddStaff,
+  setAddStaffSuccess,
+  getStaffList,
+}) => {
   const icon = (
     <svg
       width="22"
@@ -41,24 +46,19 @@ const AddStaff = ({selectedStaff, settoggleAddStaff, setAddStaffSuccess,getStaff
   //   const [customerAdress, setCustomerAdress] = useState({});
   const [customerInfo, setCustomerInfo] = useState({});
   const [userRoles, setUserRoles] = useState([]);
-  const [alert, setAlert] = useState(false)
-  const [alertSuccess, setAlertSuccess] = useState(false)
+  const [alert, setAlert] = useState(false);
+  const [alertSuccess, setAlertSuccess] = useState(false);
 
   const [formValid, setFormValid] = useState(false);
-  const [password, setPassword] = useState('');
-  const [confirmPassword, setConfirmPassword] = useState('');
+  const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
   const [passwordMatch, setPasswordMatch] = useState(false);
 
+ 
 
-  const token = Cookies.get("token");
-
-  const getRoles = async () => {
-    console.log("token izzz", token);
+  const getRoles = async () => {    
     try {
-      // Set up the headers with the token
-      const headers = {
-        Authorization: `Bearer ${token}`,
-      };
+      // Set up the headers with the token     
       const response = await axios.get(
         `https://earthcoapi.yehtohoga.com/api/UserManagement/Roles`,
         { headers }
@@ -66,7 +66,7 @@ const AddStaff = ({selectedStaff, settoggleAddStaff, setAddStaffSuccess,getStaff
       console.log("user roles areee", response.data);
       setUserRoles(response.data);
     } catch (error) {
-        console.log("erroor ", error)
+      console.log("erroor ", error);
     }
   };
 
@@ -83,15 +83,14 @@ const AddStaff = ({selectedStaff, settoggleAddStaff, setAddStaffSuccess,getStaff
       customerInfo.Password &&
       customerInfo.Phone &&
       customerInfo.Address &&
-      customerInfo.RoleId && customerInfo.Password === customerInfo.ConfirmPassword;
-    
+      customerInfo.RoleId &&
+      customerInfo.Password === customerInfo.ConfirmPassword;
+
     // check if passwords match
-   
 
     // set the form as valid only if all required fields are not empty and passwords match
     setFormValid(requiredFieldsNotEmpty);
   };
-
 
   const handleCustomerInfo = (event) => {
     const { name, value } = event.target;
@@ -102,76 +101,72 @@ const AddStaff = ({selectedStaff, settoggleAddStaff, setAddStaffSuccess,getStaff
         ...prevData,
         [name]: newValue,
       };
-    
+
       if (name === "Password" || name === "ConfirmPassword") {
         // Check if the passwords match
         const isMatching =
           name === "Password"
             ? value === updatedData.ConfirmPassword
             : updatedData.Password === value;
-    
+
         setPasswordMatch(!isMatching);
-        
       }
-    
+
       return updatedData; // Return the updated state
     });
 
     console.log("customer info", customerInfo);
-    setAlert(false)
+    setAlert(false);
 
     validateForm();
   };
 
- 
-
-
   useEffect(() => {
     validateForm(); // re-validate form when component mounts or updates
-  }, [customerInfo ]);
+  }, [customerInfo]);
 
   const addStaff = async () => {
     try {
       const response = await axios.post(
         `https://earthcoapi.yehtohoga.com/api/Staff/AddStaff`,
-        customerInfo
+        customerInfo,{headers}
       );
       // window.location.reload();
       setTimeout(() => {
-        setAlertSuccess(false)
+        setAlertSuccess(false);
       }, 3000);
-      
+
       setTimeout(() => {
-        setAddStaffSuccess(false)
-        
+        setAddStaffSuccess(false);
       }, 4000);
-      setAddStaffSuccess(true)
-      setAlertSuccess(true)
+      setAddStaffSuccess(true);
+      setAlertSuccess(true);
       getStaffList();
-      settoggleAddStaff(true)
+      settoggleAddStaff(true);
 
       console.log("staff added successfully", customerInfo);
     } catch (error) {
-
       if (error.response.status === 409) {
-            setAlert(true)
-        }
+        setAlert(true);
+      }
       console.log("roles api call error", error.response.status);
     }
   };
 
   const getStaffData = async () => {
     try {
-      const response = await axios.get(`https://earthcoapi.yehtohoga.com/api/Staff/GetStaff?id=${selectedStaff}`);
-      console.log("staffdata izzzzzz",response.data)
-      setCustomerInfo(response.data)
+      const response = await axios.get(
+        `https://earthcoapi.yehtohoga.com/api/Staff/GetStaff?id=${selectedStaff}`,{headers}
+      );
+      console.log("staffdata izzzzzz", response.data);
+      setCustomerInfo(response.data.Data);
     } catch (error) {
-      console.log("error fetching staff data", error)
+      console.log("error fetching staff data", error);
     }
   };
   useEffect(() => {
     getStaffData();
-  },[selectedStaff])
+  }, [selectedStaff]);
 
   return (
     <>
@@ -184,13 +179,13 @@ const AddStaff = ({selectedStaff, settoggleAddStaff, setAddStaffSuccess,getStaff
             </h4>
           </div>
           <div className="card-body">
-            {alert && 
-              <Alert severity="error">
-                The Email/User already exists
-              </Alert>
-           }
-           {alertSuccess && <Alert severity="success">Successfuly Added/Updated staff</Alert>}
-            
+            {alert && (
+              <Alert severity="error">The Email/User already exists</Alert>
+            )}
+            {alertSuccess && (
+              <Alert severity="success">Successfuly Added/Updated staff</Alert>
+            )}
+
             <div className="row">
               <div className="col-xl-6 mb-3">
                 <label
@@ -267,16 +262,13 @@ const AddStaff = ({selectedStaff, settoggleAddStaff, setAddStaffSuccess,getStaff
                   onChange={handleCustomerInfo}
                   id="confirmPasswordInput"
                   name="ConfirmPassword"
-                  
                   placeholder="Confirm Password"
                   required
                 />
                 {/* <div>{customerInfo.Password} {customerInfo.ConfirmPassword}</div> */}
                 {passwordMatch && (
-        <div style={{ color: 'red' }}>
-          Passwords do not match.
-        </div>
-      )}
+                  <div style={{ color: "red" }}>Passwords do not match.</div>
+                )}
               </div>
               <div className="col-xl-6 mb-3">
                 <label
@@ -363,21 +355,28 @@ const AddStaff = ({selectedStaff, settoggleAddStaff, setAddStaffSuccess,getStaff
                 </Form.Select>
               </div>
               <div className=" mt-4 col-xl-6 text-end">
-          <NavLink>
-            <button className="btn btn-primary me-1" onClick={addStaff} disabled={!formValid}>
-              Submit
-            </button>
-          </NavLink>
-         
-            <button className="btn btn-danger light ms-1" onClick={() => {settoggleAddStaff(true)}}  >Cancel</button>
-         
-        </div>
+                <NavLink>
+                  <button
+                    className="btn btn-primary me-1"
+                    onClick={addStaff}
+                    disabled={!formValid}
+                  >
+                    Submit
+                  </button>
+                </NavLink>
+
+                <button
+                  className="btn btn-danger light ms-1"
+                  onClick={() => {
+                    settoggleAddStaff(true);
+                  }}
+                >
+                  Cancel
+                </button>
+              </div>
             </div>
-            
           </div>
-          
         </div>
-        
       </div>
     </>
   );

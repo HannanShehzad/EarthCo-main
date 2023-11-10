@@ -6,9 +6,8 @@ import "datatables.net";
 import CustomerModal from "../Modals/CustomerModal";
 import { CustomerContext } from "../../context/CustomerData";
 import CircularProgress from "@mui/material/CircularProgress";
-import Alert from '@mui/material/Alert';
+import Alert from "@mui/material/Alert";
 import Cookies from "js-cookie";
-
 
 const CustomersTable = () => {
   const token = Cookies.get("token");
@@ -17,67 +16,62 @@ const CustomersTable = () => {
   };
   const { selectedCustomer } = useContext(CustomerContext);
   const [customers, setCustomers] = useState([]);
-  const [customerAddSuccess, setCustomerAddSuccess] = useState(false)
+  const [customerAddSuccess, setCustomerAddSuccess] = useState(false);
 
   const [isLoading, setIsLoading] = useState(true);
-
 
   const fetchCustomers = async () => {
     try {
       const response = await axios.get(
-        "https://earthcoapi.yehtohoga.com/api/Customer/GetCustomersList",{headers}
+        "https://earthcoapi.yehtohoga.com/api/Customer/GetCustomersList",
+        { headers }
       );
       setCustomers(response.data);
       if (response.data != null) {
         setIsLoading(false);
       }
-
-    }catch(error){
-      console.log("EEEEEEEEEEEEEEEEE",error);
-      if(error.response.status === 404){
+    } catch (error) {
+      console.log("EEEEEEEEEEEEEEEEE", error);
+      if (error.response.status === 404) {
         setIsLoading(false);
-
-      }
-      else{
+      } else {
         console.error("API Call Error:", error);
-
       }
-
     }
   };
 
-
   useEffect(() => {
     fetchCustomers();
-   
   }, []);
 
-
-  
-  
   return (
     <div className="container-fluid">
       <div className="row">
         <div className="card">
           <div className="mt-3">
-            {customerAddSuccess && <Alert severity="success">Customer Added/Updated Successfuly</Alert>}
-        
+            {customerAddSuccess && (
+              <Alert severity="success">
+                Customer Added/Updated Successfuly
+              </Alert>
+            )}
           </div>
-          
-          
-          <div className="card-body">
 
-          {isLoading ? (
-                  <div className="center-loader">
-                    <CircularProgress style={{ color: "#789a3d" }} />
-                  </div>
-                ) : (
-                  <div>
-                     <CustomerTR customers={customers} setCustomerAddSuccess={setCustomerAddSuccess} fetchCustomers={fetchCustomers}/>
-                  </div>
-                )}
-           
-           
+          <div className="card-body">
+            {isLoading ? (
+              <div className="center-loader">
+                <CircularProgress style={{ color: "#789a3d" }} />
+              </div>
+            ) : (
+              <div>
+                <CustomerTR
+                headers={headers}
+                  customers={customers}
+                  setCustomerAddSuccess={setCustomerAddSuccess}
+                  fetchCustomers={fetchCustomers}
+
+                />
+              </div>
+            )}
           </div>
         </div>
       </div>
