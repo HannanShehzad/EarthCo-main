@@ -80,16 +80,16 @@ const AddStaff = ({selectedStaff, settoggleAddStaff, setAddStaffSuccess,getStaff
       customerInfo.FirstName &&
       customerInfo.LastName &&
       customerInfo.Email &&
-      password &&
+      customerInfo.Password &&
       customerInfo.Phone &&
       customerInfo.Address &&
-      customerInfo.RoleId;
+      customerInfo.RoleId && customerInfo.Password === customerInfo.ConfirmPassword;
     
     // check if passwords match
-    const passwordsMatch = password === confirmPassword;
+   
 
     // set the form as valid only if all required fields are not empty and passwords match
-    setFormValid(requiredFieldsNotEmpty && passwordsMatch);
+    setFormValid(requiredFieldsNotEmpty);
   };
 
 
@@ -111,6 +111,7 @@ const AddStaff = ({selectedStaff, settoggleAddStaff, setAddStaffSuccess,getStaff
             : updatedData.Password === value;
     
         setPasswordMatch(!isMatching);
+        
       }
     
       return updatedData; // Return the updated state
