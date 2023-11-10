@@ -21,6 +21,8 @@ export const AddPO = ({ setShowContent }) => {
   const [selectedCustomer, setSelectedCustomer] = useState(null);
   const [selectedSL, setSelectedSL] = useState(null);
 
+  const [staffData, setStaffData] = useState([]);
+
   const handleAutocompleteChange = async (e) => {
     // inputValue ? setDisableSubmit(false) : setDisableSubmit(true);
     setInputValue(e.target.value);
@@ -81,6 +83,32 @@ export const AddPO = ({ setShowContent }) => {
       });
   };
 
+  const fetchStaffList = async () => {
+    try {
+      const response = await axios.get(
+        `https://earthcoapi.yehtohoga.com/api/Staff/GetStaffList`,{headers}
+      );
+      setStaffData(response.data);
+
+      console.log("staff list iss", response.data);
+    } catch (error) {
+      console.log("error getting staff list", error);
+    }
+  };
+
+  const handleStaffAutocompleteChange = (event, newValue) => {
+    // Construct an event-like object with the structure expected by handleInputChange
+    const simulatedEvent = {
+      target: {
+        name: "RegionalManager",
+        value: newValue ? newValue.UserId : "",
+      },
+    };
+
+    // Assuming handleInputChange is defined somewhere within YourComponent
+    // Call handleInputChange with the simulated event
+    handleInputChange(simulatedEvent);
+  };
   const handleSLAutocompleteChange = (event, newValue) => {
     const simulatedEvent = {
       target: {
@@ -129,6 +157,10 @@ export const AddPO = ({ setShowContent }) => {
     fetctContacts(formData.CustomerId);
     console.log("main payload isss", formData);
   }, [formData]);
+
+  useEffect(() => {
+    fetchStaffList()
+  },[])
 
   // items
 
@@ -367,10 +399,10 @@ export const AddPO = ({ setShowContent }) => {
                             <div className="input-group-text">#</div>{" "}
                             <input
                               type="text"
-                              name="PurchaseOrderNo"
+                              name="PurchaseOrderNumber"
                               onChange={handleChange}
                               className="form-control"
-                              placeholder="Leave blank to auto complete"
+                              placeholder="Purchase Order No"
                             />
                           </div>
                         </div>
@@ -383,8 +415,8 @@ export const AddPO = ({ setShowContent }) => {
                           onChange={handleChange}
                         >
                           <option defaultValue>Select tags</option>
-                          <option value={1}>Needs PO</option>
-                          <option value={2}>Pending Approval</option>                          
+                          <option value={"NeedsPO"}>Needs PO</option>
+                          <option value={"Pending Approval"}>Pending Approval</option>                          
                         </select>
                         </div>
                         <div className="mb-3 col-md-4">
@@ -407,16 +439,30 @@ export const AddPO = ({ setShowContent }) => {
                         </div>
                         <div className="mb-3 col-md-4">
                           <label className="form-label">Regional Manager</label>
-                          <select
-                            id="inputState"
-                            name="RegionalManager"
-                            className="default-select form-control wide"
-                          >
-                            <option defaultValue>Select Regional Manager</option>
-                            <option value={1}>RM 1</option>
-                            <option value={2}>RM 2</option>
-                            <option value={3}>RM 3</option>
-                          </select>
+                          <Autocomplete
+                        id="staff-autocomplete"
+                        size="small"
+                        options={staffData}
+                        getOptionLabel={(option) => option.FirstName || ""}
+                        value={
+                          staffData.find(
+                            (staff) =>
+                              staff.UserId === formData.RegionalManager
+                          ) || null
+                        }
+                        onChange={handleStaffAutocompleteChange}
+                        isOptionEqualToValue={(option, value) =>
+                          option.UserId === value.RegionalManager
+                        }
+                        renderInput={(params) => (
+                          <TextField
+                            {...params}
+                            label=""
+                            placeholder="Choose..."
+                            className="bg-white"
+                          />
+                        )}
+                      />
                         </div>
                         <div className="mb-3 col-md-4">
                           <label className="form-label">Terms</label>

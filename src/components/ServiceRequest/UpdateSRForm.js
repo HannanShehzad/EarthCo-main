@@ -26,9 +26,9 @@ const UpdateSRForm = ({
     ServiceRequestData: {
       ServiceRequestId: serviceRequestId,
 
-      CustomerId: 0,      
+      CustomerId: 0,
       ServiceRequestNumber: "",
-      
+
       DueDate: "",
       SRTypeId: 0,
       SRStatusId: 0,
@@ -64,7 +64,8 @@ const UpdateSRForm = ({
   const fetchServiceLocations = async (id) => {
     axios
       .get(
-        `https://earthcoapi.yehtohoga.com/api/Customer/GetCustomerServiceLocation?id=${id}`,{headers}
+        `https://earthcoapi.yehtohoga.com/api/Customer/GetCustomerServiceLocation?id=${id}`,
+        { headers }
       )
       .then((res) => {
         setSLList(res.data);
@@ -90,7 +91,8 @@ const UpdateSRForm = ({
   const fetctContacts = async (id) => {
     axios
       .get(
-        `https://earthcoapi.yehtohoga.com/api/Customer/GetCustomerContact?id=${id}`,{headers}
+        `https://earthcoapi.yehtohoga.com/api/Customer/GetCustomerContact?id=${id}`,
+        { headers }
       )
       .then((res) => {
         console.log("contacts data isss", res.data);
@@ -124,7 +126,8 @@ const UpdateSRForm = ({
   const fetchStaffList = async () => {
     try {
       const response = await axios.get(
-        `https://earthcoapi.yehtohoga.com/api/Staff/GetStaffList`,{headers}
+        `https://earthcoapi.yehtohoga.com/api/Staff/GetStaffList`,
+        { headers }
       );
       setStaffData(response.data);
 
@@ -134,7 +137,7 @@ const UpdateSRForm = ({
     }
   };
 
-  const fetchSRTypes = async () => {    
+  const fetchSRTypes = async () => {
     try {
       const res = await axios.get(
         `https://earthcoapi.yehtohoga.com/api/ServiceRequest/GetServiceRequestTypes`,
@@ -157,7 +160,8 @@ const UpdateSRForm = ({
     try {
       setShowCustomersList(true); // Show the list when typing
       const res = await axios.get(
-        `https://earthcoapi.yehtohoga.com/api/Customer/GetSearchCustomersList?Search=${e.target.value}`,{headers}
+        `https://earthcoapi.yehtohoga.com/api/Customer/GetSearchCustomersList?Search=${e.target.value}`,
+        { headers }
       );
       console.log("customers search list", res.data);
       setCustomersList(res.data);
@@ -174,7 +178,6 @@ const UpdateSRForm = ({
       },
     }));
 
-    
     setInputValue(customer.CompanyName); // Add this line to update the input value
     setShowCustomersList(false);
   };
@@ -308,14 +311,9 @@ const UpdateSRForm = ({
   const trackFile = (e) => {
     const uploadedFile = e.target.files[0];
     if (uploadedFile) {
-      // const newFile = {
-      // actualFile: uploadedFile,
-      // name: uploadedFile.name,
-      // caption: uploadedFile.name,
-      // date: new Date().toLocaleDateString(),
-      // };
       setFiles((prevFiles) => [...prevFiles, uploadedFile]);
     }
+    console.log("uploaded file is", uploadedFile);
   };
   const addFile = () => {
     inputFile.current.click();
@@ -331,16 +329,15 @@ const UpdateSRForm = ({
       if (serviceRequestId === 0) {
         return;
       }
-      
 
       try {
-      const response = await axios.get(
-        `https://earthcoapi.yehtohoga.com/api/ServiceRequest/GetServiceRequest?id=${serviceRequestId}`,
-        { headers }
-      );
+        const response = await axios.get(
+          `https://earthcoapi.yehtohoga.com/api/ServiceRequest/GetServiceRequest?id=${serviceRequestId}`,
+          { headers }
+        );
         setInputValue(response.data.Data.CustomerId);
         setSRList(response.data.Data);
-        
+
         setSRData((prevData) => ({
           ServiceRequestData: {
             ...prevData.ServiceRequestData,
@@ -349,14 +346,18 @@ const UpdateSRForm = ({
           },
         }));
         // Set the tblSRItems state with the response.data.tblSRItems
-        setTblSRItems(response.data.Data.ItemData);
+        console.log("response.data.Data", response.data);
+        setTblSRItems(response.data.ItemData);
         // Set the itemInput state with the first item from the response.data.tblSRItems
-        if (response.data.Data.ItemData && response.data.Data.ItemData.length > 0) {
-          setItemInput(response.data.Data.tblSRItems[0]);
+        if (response.data.ItemData && response.data.ItemData.length > 0) {
+          setItemInput(response.data.tblSRItems[0]);
         }
 
         if (response.data.Data.ItemData) {
-          setFiles((prevFiles) => [...prevFiles, ...response.data.Data.tblSRFiles]);
+          setFiles((prevFiles) => [
+            ...prevFiles,
+            ...response.data.Data.tblSRFiles,
+          ]);
         }
         console.log(" list is///////", response.data.Data);
       } catch (error) {
@@ -378,7 +379,7 @@ const UpdateSRForm = ({
   useEffect(() => {
     if (searchText) {
       // Make an API request when the search text changes
-      
+
       axios
         .get(
           `https://earthcoapi.yehtohoga.com/api/Item/GetSearchItemList?Search=${searchText}`,
@@ -407,6 +408,7 @@ const UpdateSRForm = ({
     setSearchText(item.ItemName); // Set the input text to the selected item's name
     setItemInput({
       ...itemInput,
+      ItemId: item.ItemId,
       Name: item.ItemName,
       Description: item.SaleDescription,
       Rate: item.SalePrice,
@@ -491,7 +493,10 @@ const UpdateSRForm = ({
                         className="form-control form-control-sm"
                       />
                       {showCustomersList && customersList && (
-                        <ul style={{top: "140px" }} className="search-results-container">
+                        <ul
+                          style={{ top: "140px" }}
+                          className="search-results-container"
+                        >
                           {customersList.map((customer) => (
                             <li
                               style={{ cursor: "pointer" }}
@@ -582,7 +587,9 @@ const UpdateSRForm = ({
                         <option value={null}>Choose types...</option>
                         {sRTypes.map((type) => {
                           return (
-                            <option key={type.SRTypeId} value={type.SRTypeId}>{type.Type}</option>
+                            <option key={type.SRTypeId} value={type.SRTypeId}>
+                              {type.Type}
+                            </option>
                           );
                         })}
                       </Form.Select>
@@ -600,7 +607,6 @@ const UpdateSRForm = ({
                       />
                     </div>
 
-                   
                     <div className="col-lg-2 col-md-2 ">
                       <label className="form-label">Status:</label>
                       <Form.Select
@@ -659,7 +665,7 @@ const UpdateSRForm = ({
                           />
                         )}
                       />
-                                         </div>
+                    </div>
                     <div className="col-md-6 pt-4">
                       {" "}
                       {/* Adjust the column size as needed */}
@@ -669,7 +675,6 @@ const UpdateSRForm = ({
                 </div>
               </div>
             </div>
-           
             {/* item table */}
             <div className="card">
               <div className="card-body p-0">
@@ -677,7 +682,7 @@ const UpdateSRForm = ({
                   <div className="itemtitleBar">
                     <h4>Items</h4>
                   </div>
-                 
+
                   <div className="table-responsive active-projects style-1 mt-2 ">
                     <table id="empoloyees-tblwrapper" className="table">
                       <thead>
@@ -691,144 +696,144 @@ const UpdateSRForm = ({
                           <th>Actions</th>
                         </tr>
                       </thead>
-                      {tblSRItems ? (<tbody>
-                        {tblSRItems.map((item, index) => (
-                          <tr key={index}>
-                            <td>{item.Name}</td>
-                            <td>{item.Description}</td>
-                            <td>{item.Rate}</td>
-                            <td>{item.Qty}</td>
-                            <td></td>
-                            <td>{item.Qty * item.Rate}</td>
-                            <td>
-                              <div className="badgeBox">
-                                <span
-                                  className="actionBadge badge-danger light border-0 badgebox-size"
-                                  onClick={() => removeItem(index)}
-                                >
-                                  <span className="material-symbols-outlined badgebox-size">
-                                    delete
+                      {tblSRItems ? (
+                        <tbody>
+                          {tblSRItems.map((item, index) => (
+                            <tr key={index}>
+                              <td>{item.Name}</td>
+                              <td>{item.Description}</td>
+                              <td>{item.Rate}</td>
+                              <td>{item.Qty}</td>
+                              <td></td>
+                              <td>{item.Qty * item.Rate}</td>
+                              <td>
+                                <div className="badgeBox">
+                                  <span
+                                    className="actionBadge badge-danger light border-0 badgebox-size"
+                                    onClick={() => removeItem(index)}
+                                  >
+                                    <span className="material-symbols-outlined badgebox-size">
+                                      delete
+                                    </span>
                                   </span>
-                                </span>
+                                </div>
+                              </td>
+                            </tr>
+                          ))}
+                          <tr>
+                            <td>
+                              <>
+                                <input
+                                  type="text"
+                                  placeholder="Search for items..."
+                                  className="form-control form-control-sm"
+                                  name="Name"
+                                  value={searchText}
+                                  onChange={handleItemChange}
+                                  ref={inputRef}
+                                />
+                                {searchResults.length > 0 && (
+                                  <ul className="search-results-container">
+                                    {searchResults.map((item) => (
+                                      <li
+                                        style={{ cursor: "pointer" }}
+                                        key={item.ItemId}
+                                        onClick={() => handleItemClick(item)}
+                                      >
+                                        {showItem && item.ItemName}
+                                      </li>
+                                    ))}
+                                  </ul>
+                                )}
+                              </>
+                            </td>
+                            <td>
+                              <p>{selectedItem?.SaleDescription || " "}</p>
+                            </td>
+
+                            <td>
+                              <div className="col-sm-9">
+                                <input
+                                  name="Rate"
+                                  value={
+                                    selectedItem?.SalePrice ||
+                                    itemInput.Rate ||
+                                    " "
+                                  }
+                                  className="form-control form-control-sm"
+                                  placeholder="Rate"
+                                  disabled
+                                />
                               </div>
                             </td>
-                          </tr>
-                        ))}
-                        <tr>
-                          <td>
-                            <>
-                              <input
-                                type="text"
-                                placeholder="Search for items..."
-                                className="form-control form-control-sm"
-                                name="Name"
-                                value={searchText}
-                                onChange={handleItemChange}
-                                ref={inputRef}
-                              />
-                              {searchResults.length > 0 && (
-                                <ul className="search-results-container">
-                                  {searchResults.map((item) => (
-                                    <li
-                                      style={{ cursor: "pointer" }}
-                                      key={item.ItemId}
-                                      onClick={() => handleItemClick(item)}
-                                    >
-                                      {showItem && item.ItemName}
-                                    </li>
-                                  ))}
-                                </ul>
-                              )}
-                            </>
-                          </td>
-                          <td>
-                            <p>{selectedItem?.SaleDescription || " "}</p>
-                          </td>
 
-                          <td>
-                            <div className="col-sm-9">
+                            <td>
                               <input
-                                name="Rate"
-                                value={
-                                  selectedItem?.SalePrice ||
-                                  itemInput.Rate ||
-                                  " "
+                                type="number"
+                                name="Qty"
+                                value={itemInput.Qty}
+                                onChange={(e) =>
+                                  setItemInput({
+                                    ...itemInput,
+                                    Qty: Number(e.target.value),
+                                  })
                                 }
                                 className="form-control form-control-sm"
-                                placeholder="Rate"
+                                placeholder="Quantity"
+                              />
+                            </td>
+                            <td>
+                              <input
+                                type="number"
+                                name="Tax"
+                                // value={itemInput.Qty}
+                                // onChange={(e) =>
+                                //   setItemInput({
+                                //     ...itemInput,
+                                //     Qty: Number(e.target.value),
+                                //   })
+                                // }
+                                className="form-control form-control-sm"
+                                placeholder="Tax"
                                 disabled
                               />
-                            </div>
-                          </td>
-
-                          <td>
-                            <input
-                              type="number"
-                              name="Qty"
-                              value={itemInput.Qty}
-                              onChange={(e) =>
-                                setItemInput({
-                                  ...itemInput,
-                                  Qty: Number(e.target.value),
-                                })
-                              }
-                              className="form-control form-control-sm"
-                              placeholder="Quantity"
-                            />
-                          </td>
-                          <td>
-                            <input
-                              type="number"
-                              name="Tax"
-                              // value={itemInput.Qty}
-                              // onChange={(e) =>
-                              //   setItemInput({
-                              //     ...itemInput,
-                              //     Qty: Number(e.target.value),
-                              //   })
-                              // }
-                              className="form-control form-control-sm"
-                              placeholder="Tax"
-                              disabled
-                            />
-                          </td>
-                          <td>
-                            <h5 style={{ margin: "0" }}>
-                              {itemInput.Rate * itemInput.Qty}
-                            </h5>
-                          </td>
-                          <td>
-                            <button
-                              className="btn btn-primary btn-sm"
-                              onClick={() => {
-                                setTblSRItems([...tblSRItems, itemInput]);
-                                setSearchText("");
-                                setSelectedItem({
-                                  SalePrice: "",
-                                  SaleDescription: "",
-                                });
-                                setItemInput({
-                                  Name: "",
-                                  Qty: 1,
-                                  Description: "",
-                                  Rate: 0,
-                                }); // Reset the modal input field
-                                console.log("table items are ",tblSRItems )
-                              }}
-
-                            >
-                              Add
-                            </button>
-                          </td>
-                        </tr>
-                      </tbody>): (
-  <tbody>
-    <tr>
-      <td colSpan="7">No items found</td>
-    </tr>
-  </tbody>
-)}
-                      
+                            </td>
+                            <td>
+                              <h5 style={{ margin: "0" }}>
+                                {itemInput.Rate * itemInput.Qty}
+                              </h5>
+                            </td>
+                            <td>
+                              <button
+                                className="btn btn-primary btn-sm"
+                                onClick={() => {
+                                  setTblSRItems([...tblSRItems, itemInput]);
+                                  setSearchText("");
+                                  setSelectedItem({
+                                    SalePrice: "",
+                                    SaleDescription: "",
+                                  });
+                                  setItemInput({
+                                    Name: "",
+                                    Qty: 1,
+                                    Description: "",
+                                    Rate: 0,
+                                  }); // Reset the modal input field
+                                  console.log("table items are ", tblSRItems);
+                                }}
+                              >
+                                Add
+                              </button>
+                            </td>
+                          </tr>
+                        </tbody>
+                      ) : (
+                        <tbody>
+                          <tr>
+                            <td colSpan="7">No items found</td>
+                          </tr>
+                        </tbody>
+                      )}
                     </table>
                   </div>
                 </div>
@@ -859,7 +864,7 @@ const UpdateSRForm = ({
                       <thead>
                         <tr>
                           <th>#</th>
-                          <th>File Name</th>                          
+                          <th>File Name</th>
                           <th>Type</th>
                           <th>Size</th>
                           <th>Actions</th>
@@ -870,7 +875,7 @@ const UpdateSRForm = ({
                           <tr key={index}>
                             <td>{index + 1}</td>
                             <td>{file.FileName || file.name}</td>
-                          
+
                             <td>{file.type || "N/A"}</td>
                             <td>{file.size} bytes</td>
                             <td>
@@ -988,7 +993,6 @@ const UpdateSRForm = ({
             </div>
           </div>
         </div>
-        
       </div>
     </>
   );

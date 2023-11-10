@@ -322,6 +322,7 @@ const UpdateEstimateForm = ({
     setSearchText(item.ItemName); // Set the input text to the selected item's name
     setItemInput({
       ...itemInput,
+      ItemId: item.ItemId,
       Name: item.ItemName,
       Description: item.SaleDescription,
       Rate: item.SalePrice,
@@ -371,86 +372,7 @@ const UpdateEstimateForm = ({
   return (
     <div className="">
       <div className="">
-        <div className="row">
-          <div className="col-xl-3 mt-2">
-            <label className="form-label">Status</label>
-            <Form.Select
-              aria-label="Default select example"
-              className=" form-control-sm bg-white"
-              value={formData.EstimateStatusId}
-              onChange={handleStatusChange}
-              name="Status"
-              size="md"
-              id="inlineFormCustomSelect"
-            >
-              <option value={null}>Select</option>
-              <option value={1}>Accepted</option>
-              <option value={2}>Closed</option>
-              <option value={3}>Converted</option>
-              <option value={4}>Pending</option>
-              <option value={5}>Rejected</option>
-            </Form.Select>
-          </div>
-          <div className="col-xl-3 mt-2">
-            <label className="form-label">Tags</label>
-            <Form.Select
-              aria-label="Default select example"
-              className=" form-control-sm bg-white"
-              // value={formData.EstimateStatusId}
-              // onChange={handleStatusChange}
-              name="Tags"
-              size="md"
-            >
-              <option value={null}>Select</option>
-              <option value={1}>Needs PO</option>
-              <option value={2}>Pending Approval</option>
-              <option value={3}>Ready to Invoice</option>
-
-              {/* <option value={1}>Open</option>
-              <option value={2}>Approved</option>
-              <option value={3}>Closed Billed</option> */}
-            </Form.Select>
-          </div>
-          <div className="col-xl-3 mt-2">
-            <label className="form-label">Estimate No.</label>
-            <input
-              value={formData.EstimateNumber}
-              name="EstimateNumber"
-              onChange={handleInputChange}
-              type="text"
-              className="form-control form-control-sm"
-              placeholder={estimates.EstimateNumber || "Estimate Number"}
-            />
-          </div>
-          <div className="col-xl-3">
-            <div
-              className="col-lg-4 col-md-12 mb-2"
-              style={{ minWidth: "150px" }}
-            ></div>
-            <div style={{ marginTop: "2.9em" }} className="col-lg-8 col-md-12 ">
-              <button
-                type="button"
-                className="btn btn-sm btn-outline-primary estm-action-btn"
-              >
-                <Email />
-              </button>
-              <button
-                type="button"
-                className="btn btn-sm btn-outline-primary estm-action-btn"
-              >
-                <Print></Print>
-              </button>
-              <button
-                type="button"
-                className="btn btn-sm btn-outline-primary estm-action-btn"
-                // style={{ minWidth: "120px" }}
-              >
-                <Download />
-              </button>
-            </div>
-          </div>
-        </div>
-        <div className="row mt-3">
+      <div className="row mt-3 mb-3">
           <div className="col-xl-3">
             <label className="form-label">Customer</label>
             <input
@@ -535,21 +457,85 @@ const UpdateEstimateForm = ({
             />
           </div>
           <div className="col-xl-3">
-            <label className="form-label">Email</label>
+            <div
+              className="col-lg-4 col-md-12 mb-2"
+              style={{ minWidth: "150px" }}
+            ></div>
+            <div style={{ marginTop: "2.9em" }} className="col-lg-8 col-md-12 ">
+              <button
+                type="button"
+                className="btn btn-sm btn-outline-primary estm-action-btn"
+              >
+                <Email />
+              </button>
+              <button
+                type="button"
+                className="btn btn-sm btn-outline-primary estm-action-btn"
+              >
+                <Print></Print>
+              </button>
+              <button
+                type="button"
+                className="btn btn-sm btn-outline-primary estm-action-btn"
+                // style={{ minWidth: "120px" }}
+              >
+                <Download />
+              </button>
+            </div>
+          </div>
+          
+        </div>
+        <div className="row mb-3">
+          <div className="col-xl-3 mt-2">
+            <label className="form-label">Status</label>
+            <Form.Select
+              aria-label="Default select example"
+              className=" form-control-sm bg-white"
+              value={formData.EstimateStatusId}
+              onChange={handleStatusChange}
+              name="Status"
+              size="md"
+              id="inlineFormCustomSelect"
+            >
+              <option value={null}>Select</option>
+              <option value={1}>Accepted</option>
+              <option value={2}>Closed</option>
+              <option value={3}>Converted</option>
+              <option value={4}>Pending</option>
+              <option value={5}>Rejected</option>
+            </Form.Select>
+          </div>
+          <div className="col-xl-3 mt-2">
+            <label className="form-label">Tags</label>
+            <Form.Select
+              aria-label="Default select example"
+              className=" form-control-sm bg-white"
+              // value={formData.EstimateStatusId}
+              // onChange={handleStatusChange}
+              name="Tags"
+              size="md"
+            >
+              <option value={null}>Select</option>
+              <option value={1}>Needs PO</option>
+              <option value={2}>Pending Approval</option>
+              <option value={3}>Ready to Invoice</option>
+
+              {/* <option value={1}>Open</option>
+              <option value={2}>Approved</option>
+              <option value={3}>Closed Billed</option> */}
+            </Form.Select>
+          </div>
+          <div className="col-xl-3 mt-2">
+            <label className="form-label">Estimate No.</label>
             <input
-              value={formData.Email}
-              name="Email"
+              value={formData.EstimateNumber}
+              name="EstimateNumber"
               onChange={handleInputChange}
               type="text"
               className="form-control form-control-sm"
-              placeholder={estimates.Email || "Email"}
+              placeholder={estimates.EstimateNumber || "Estimate Number"}
             />
           </div>
-        </div>
-
-        <div className="row mt-3 mb-3">
-          
-          
           <div className=" col-xl-3">
             <label className="form-label">Issued Date</label>
             <input
@@ -562,6 +548,8 @@ const UpdateEstimateForm = ({
             />
           </div>
         </div>
+        
+
 
         {/* item table */}
         <div className="">

@@ -169,7 +169,7 @@ const ServiceRequestTR = ({headers, serviceRequest , setShowCards, fetchServiceR
       {showContent ? (
         <ThemeProvider theme={theme}>
           <div className="">
-          {successAlert && <Alert className="mb-3" severity="success">This is a success alert — check it out!</Alert> }
+          {successAlert && <Alert className="mb-3" severity="success">Successfuly Added/Updated Servise request</Alert> }
             <div className=" text-center">
               <div className="row ">
                 <div className="col-md-12">

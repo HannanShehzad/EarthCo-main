@@ -13,6 +13,7 @@ import { Autocomplete, TextField } from "@mui/material";
 import StatusCards from "./StatusCards";
 import CircularProgress from "@mui/material/CircularProgress";
 import Cookies from "js-cookie";
+import Alert from '@mui/material/Alert';
 
 
 
@@ -37,6 +38,7 @@ const Estimates = () => {
 
   const [isLoading, setIsLoading] = useState(true);
   const [showStatusCards, setShowStatusCards] = useState(true)
+  const [tableError, setTableError] = useState(false)
 
 
   const navigate = useNavigate();
@@ -55,6 +57,8 @@ const Estimates = () => {
           setIsLoading(false);
         }
       } catch (error) {
+        setTableError(true)
+        setIsLoading(false);
         console.error("API Call Error:", error);
       }
     };
@@ -161,6 +165,8 @@ const Estimates = () => {
         <div className="col-xl-12">
           <div className="card">
             <div className="card-body">
+              {tableError &&  <Alert severity="error">Error Loading Estimates!</Alert>}
+           
               
             {isLoading ? (
                 <div className="center-loader">

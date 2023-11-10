@@ -69,11 +69,7 @@ const ServiceRequest = () => {
                   <option>Keystone Pacific</option>
                   <option>Brian Jacobs</option>
                 </Form.Select>
-                {/* <select className="me-sm-2 default-select form-control wide" id="inlineFormCustomSelect">
-                                        <option>Select Service Location...</option>
-                                        <option>Keystone Pacific</option>
-                                        <option>Brian Jacobs</option>
-                                    </select> */}
+                
               </div>
               <div className="mb-3 col-md-4">
                 <label>Contact</label>
